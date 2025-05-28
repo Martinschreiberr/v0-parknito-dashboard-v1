@@ -1,0 +1,162 @@
+[
+  {
+    "id": "res_001",
+    "user_id": "usr_001",
+    "location_id": "loc_001",
+    "spot_id": "spot_001",
+    "start_time": "2025-05-10T09:00:00Z",
+    "end_time": "2025-05-10T17:00:00Z",
+    "status": "active",
+    "vehicle": {
+      "plate": "ABC123",
+      "make": "Toyota",
+      "model": "Camry",
+      "color": "Blue"
+    },
+    "created_at": "2025-05-08T14:30:00Z"
+  },
+  {
+    "id": "res_002",
+    "user_id": "usr_002",
+    "location_id": "loc_001",
+    "spot_id": "spot_005",
+    "start_time": "2025-05-10T08:30:00Z",
+    "end_time": "2025-05-10T16:30:00Z",
+    "status": "active",
+    "vehicle": {
+      "plate": "XYZ789",
+      "make": "Honda",
+      "model": "Civic",
+      "color": "Silver"
+    },
+    "created_at": "2025-05-09T10:15:00Z"
+  },
+  {
+    "id": "res_003",
+    "user_id": "usr_003",
+    "location_id": "loc_002",
+    "spot_id": "spot_012",
+    "start_time": "2025-05-11T09:30:00Z",
+    "end_time": "2025-05-11T14:30:00Z",
+    "status": "upcoming",
+    "vehicle": {
+      "plate": "DEF456",
+      "make": "Ford",
+      "model": "Focus",
+      "color": "Red"
+    },
+    "created_at": "2025-05-09T16:45:00Z"
+  },
+  {
+    "id": "res_004",
+    "user_id": "usr_004",
+    "location_id": "loc_003",
+    "spot_id": "spot_023",
+    "start_time": "2025-05-10T10:00:00Z",
+    "end_time": "2025-05-10T18:00:00Z",
+    "status": "active",
+    "vehicle": {
+      "plate": "GHI789",
+      "make": "Chevrolet",
+      "model": "Malibu",
+      "color": "Black"
+    },
+    "created_at": "2025-05-08T09:20:00Z"
+  },
+  {
+    "id": "res_005",
+    "user_id": "usr_006",
+    "location_id": "loc_005",
+    "spot_id": "spot_042",
+    "start_time": "2025-05-12T08:00:00Z",
+    "end_time": "2025-05-12T17:30:00Z",
+    "status": "upcoming",
+    "vehicle": {
+      "plate": "JKL012",
+      "make": "Nissan",
+      "model": "Altima",
+      "color": "White"
+    },
+    "created_at": "2025-05-09T13:10:00Z"
+  },
+  {
+    "id": "res_006",
+    "user_id": "usr_007",
+    "location_id": "loc_006",
+    "spot_id": "spot_055",
+    "start_time": "2025-05-10T09:15:00Z",
+    "end_time": "2025-05-10T12:15:00Z",
+    "status": "completed",
+    "vehicle": {
+      "plate": "MNO345",
+      "make": "Hyundai",
+      "model": "Sonata",
+      "color": "Gray"
+    },
+    "created_at": "2025-05-07T11:30:00Z"
+  },
+  {
+    "id": "res_007",
+    "user_id": "usr_008",
+    "location_id": "loc_007",
+    "spot_id": "spot_068",
+    "start_time": "2025-05-11T10:30:00Z",
+    "end_time": "2025-05-11T15:30:00Z",
+    "status": "upcoming",
+    "vehicle": {
+      "plate": "PQR678",
+      "make": "Kia",
+      "model": "Optima",
+      "color": "Green"
+    },
+    "created_at": "2025-05-09T15:25:00Z"
+  },
+  {
+    "id": "res_008",
+    "user_id": "usr_010",
+    "location_id": "loc_008",
+    "spot_id": "spot_073",
+    "start_time": "2025-05-10T08:45:00Z",
+    "end_time": "2025-05-10T16:45:00Z",
+    "status": "active",
+    "vehicle": {
+      "plate": "STU901",
+      "make": "Mazda",
+      "model": "6",
+      "color": "Blue"
+    },
+    "created_at": "2025-05-08T17:40:00Z"
+  },
+  {
+    "id": "res_009",
+    "user_id": "usr_001",
+    "location_id": "loc_001",
+    "spot_id": "spot_003",
+    "start_time": "2025-05-13T09:00:00Z",
+    "end_time": "2025-05-13T17:00:00Z",
+    "status": "upcoming",
+    "vehicle": {
+      "plate": "ABC123",
+      "make": "Toyota",
+      "model": "Camry",
+      "color": "Blue"
+    },
+    "created_at": "2025-05-09T09:05:00Z"
+  },
+  {
+    "id": "res_010",
+    "user_id": "usr_003",
+    "location_id": "loc_010",
+    "spot_id": "spot_092",
+    "start_time": "2025-05-09T10:00:00Z",
+    "end_time": "2025-05-09T14:00:00Z",
+    "status": "completed",
+    "vehicle": {
+      "plate": "DEF456",
+      "make": "Ford",
+      "model": "Focus",
+      "color": "Red"
+    },
+    "created_at": "2025-05-07T13:50:00Z"
+  }
+]

@@ -1,0 +1,622 @@
+{
+  "metadata": {
+    "title": "ParkSmart - Parking Management Platform",
+    "description": "Modern multi-tenant SaaS parking management platform",
+    "keywords": "parking, management, saas, platform"
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "companies": "Companies",
+    "locations": "Locations",
+    "reservations": "Reservations",
+    "users": "Users",
+    "reports": "Reports",
+    "settings": "Settings",
+    "home": "Home"
+  },
+  "common": {
+    "loading": "Loading...",
+    "search": "Search",
+    "filter": "Filter",
+    "create": "Create",
+    "edit": "Edit",
+    "delete": "Delete",
+    "cancel": "Cancel",
+    "save": "Save",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "view": "View",
+    "download": "Download",
+    "export": "Export",
+    "import": "Import",
+    "actions": "Actions",
+    "status": "Status",
+    "details": "Details",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "address": "Address",
+    "date": "Date",
+    "time": "Time",
+    "description": "Description",
+    "type": "Type",
+    "category": "Category",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "pending": "Pending",
+    "completed": "Completed",
+    "cancelled": "Cancelled",
+    "error": "Error",
+    "success": "Success",
+    "warning": "Warning",
+    "info": "Info"
+  },
+  "landing": {
+    "navbar": {
+      "features": "Features",
+      "pricing": "Pricing",
+      "about": "About",
+      "contact": "Contact",
+      "login": "Login",
+      "signup": "Sign Up",
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "subtitle": "🚀 Smart Parking Management",
+      "title": "Transform Your",
+      "title_highlight": "Parking Experience",
+      "description": "Streamline parking operations with our intelligent management system. Real-time monitoring, automated reservations, and comprehensive analytics in one powerful platform.",
+      "features": ["Real-time monitoring", "Automated reservations", "Analytics dashboard"],
+      "primaryCta": "Start Free Trial",
+      "watchDemo": "Watch Demo",
+      "trustIndicator": "Trusted by 500+ companies worldwide"
+    },
+    "stats": {
+      "title": "Trusted by thousands worldwide",
+      "subtitle": "Join the growing community of smart parking management",
+      "stats": [
+        {
+          "label": "Active Users",
+          "value": "10,000+",
+          "icon": "users"
+        },
+        {
+          "label": "Parking Locations",
+          "value": "500+",
+          "icon": "building"
+        },
+        {
+          "label": "Vehicles Managed",
+          "value": "50,000+",
+          "icon": "car"
+        },
+        {
+          "label": "Efficiency Increase",
+          "value": "85%",
+          "icon": "trending"
+        }
+      ]
+    },
+    "features": {
+      "title": "Everything you need to manage parking",
+      "subtitle": "Our comprehensive platform provides all the tools you need to streamline parking operations, increase efficiency, and improve user experience.",
+      "features": [
+        {
+          "title": "Real-time Monitoring",
+          "description": "Track parking availability and occupancy in real-time with live updates and notifications.",
+          "icon": "smartphone"
+        },
+        {
+          "title": "Advanced Analytics",
+          "description": "Comprehensive reporting and analytics to optimize your parking operations and revenue.",
+          "icon": "chart"
+        },
+        {
+          "title": "Secure Payments",
+          "description": "Integrated payment processing with multiple payment methods and secure transactions.",
+          "icon": "credit"
+        },
+        {
+          "title": "24/7 Support",
+          "description": "Round-the-clock customer support to ensure your parking system runs smoothly.",
+          "icon": "clock"
+        },
+        {
+          "title": "Location Management",
+          "description": "Manage multiple parking locations from a single dashboard with ease.",
+          "icon": "map"
+        },
+        {
+          "title": "Smart Notifications",
+          "description": "Automated alerts and notifications for reservations, payments, and system updates.",
+          "icon": "bell"
+        },
+        {
+          "title": "User Management",
+          "description": "Comprehensive user management with role-based access and permissions.",
+          "icon": "users"
+        },
+        {
+          "title": "Quick Setup",
+          "description": "Get started in minutes with our easy setup process and intuitive interface.",
+          "icon": "zap"
+        },
+        {
+          "title": "Enterprise Security",
+          "description": "Bank-level security with encryption, compliance, and data protection.",
+          "icon": "shield"
+        }
+      ]
+    },
+    "pricing": {
+      "title": "Simple, transparent pricing",
+      "subtitle": "Choose the perfect plan for your parking management needs. All plans include a 14-day free trial.",
+      "plans": [
+        {
+          "name": "Starter",
+          "price": "$29",
+          "description": "Perfect for small parking operations",
+          "features": [
+            "Up to 50 parking spots",
+            "Basic analytics",
+            "Email support",
+            "Mobile app access",
+            "Payment processing"
+          ],
+          "cta": "Start Free Trial"
+        },
+        {
+          "name": "Professional",
+          "price": "$99",
+          "description": "Ideal for growing businesses",
+          "features": [
+            "Up to 500 parking spots",
+            "Advanced analytics",
+            "Priority support",
+            "Multiple locations",
+            "Custom integrations",
+            "API access",
+            "Advanced reporting"
+          ],
+          "popular": true,
+          "cta": "Start Free Trial"
+        },
+        {
+          "name": "Enterprise",
+          "price": "Custom",
+          "description": "For large-scale operations",
+          "features": [
+            "Unlimited parking spots",
+            "Custom analytics",
+            "24/7 dedicated support",
+            "White-label solution",
+            "Custom integrations",
+            "SLA guarantee",
+            "On-premise deployment"
+          ],
+          "cta": "Contact Sales"
+        }
+      ],
+      "footer": "All plans include 14-day free trial. No credit card required."
+    },
+    "testimonials": {
+      "title": "What our customers say",
+      "subtitle": "Don't just take our word for it. Here's what parking professionals are saying about ParkSmart.",
+      "testimonials": [
+        {
+          "name": "Sarah Johnson",
+          "role": "Operations Manager",
+          "company": "Metro Parking Solutions",
+          "content": "ParkSmart has revolutionized our parking operations. The real-time monitoring and analytics have increased our efficiency by 40% and significantly improved customer satisfaction.",
+          "rating": 5
+        },
+        {
+          "name": "Michael Chen",
+          "role": "Facility Director",
+          "company": "Downtown Business Center",
+          "content": "The integration was seamless and the support team was exceptional. We've seen a 60% reduction in parking disputes and our revenue has increased by 25%.",
+          "rating": 5
+        },
+        {
+          "name": "Emily Rodriguez",
+          "role": "Property Manager",
+          "company": "Urban Developments",
+          "content": "Managing multiple parking locations used to be a nightmare. Now with ParkSmart's centralized dashboard, I can oversee everything from one place. It's been a game-changer.",
+          "rating": 5
+        }
+      ]
+    },
+    "faq": {
+      "title": "Frequently asked questions",
+      "subtitle": "Everything you need to know about ParkSmart. Can't find the answer you're looking for? Contact our support team.",
+      "faqs": [
+        {
+          "question": "How quickly can I get started with ParkSmart?",
+          "answer": "You can get started immediately with our 14-day free trial. Setup typically takes less than 30 minutes, and our onboarding team will guide you through the process."
+        },
+        {
+          "question": "Do you support multiple payment methods?",
+          "answer": "Yes, we support all major payment methods including credit cards, mobile payments, and digital wallets. We also integrate with popular payment processors."
+        },
+        {
+          "question": "Can I manage multiple parking locations?",
+          "answer": "Our platform is designed to handle multiple locations from a single dashboard. You can manage unlimited locations with our Professional and Enterprise plans."
+        },
+        {
+          "question": "Is there a mobile app for users?",
+          "answer": "Yes, we provide mobile apps for both iOS and Android. Users can find parking, make reservations, and handle payments directly from their mobile devices."
+        },
+        {
+          "question": "What kind of support do you offer?",
+          "answer": "We offer email support for all plans, priority support for Professional plans, and 24/7 dedicated support for Enterprise customers. We also provide comprehensive documentation and training materials."
+        },
+        {
+          "question": "Can I integrate ParkSmart with my existing systems?",
+          "answer": "Yes, we offer API access and custom integrations. Our team can help you integrate with existing property management systems, access control systems, and other business tools."
+        }
+      ]
+    },
+    "cta": {
+      "title": "Ready to transform your parking operations?",
+      "subtitle": "Join thousands of parking professionals who trust ParkSmart to streamline their operations and increase revenue.",
+      "features": ["14-day free trial", "No credit card required", "Setup in minutes", "24/7 support"],
+      "primaryCta": "Start Free Trial",
+      "secondaryCta": "Contact Sales",
+      "footer": "No setup fees • Cancel anytime • GDPR compliant"
+    },
+    "footer": {
+      "company": "Company",
+      "about": "About",
+      "careers": "Careers",
+      "press": "Press",
+      "news": "News",
+      "media": "Media",
+      "contact": "Contact",
+      "product": "Product",
+      "features": "Features",
+      "pricing": "Pricing",
+      "security": "Security",
+      "enterprise": "Enterprise",
+      "customers": "Customers",
+      "resources": "Resources",
+      "documentation": "Documentation",
+      "guides": "Guides",
+      "api": "API",
+      "status": "Status",
+      "legal": "Legal",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "cookies": "Cookies",
+      "licenses": "Licenses",
+      "settings": "Settings",
+      "copyright": "© 2025 ParkSmart. All rights reserved."
+    }
+  },
+  "setup": {
+    "title": "Welcome to ParkSmart",
+    "subtitle": "Let's set up your parking management system",
+    "description": "Complete the setup below to get started with your parking management platform.",
+    "company_details": "Company Details",
+    "company_name": "Company Name",
+    "company_name_placeholder": "Enter your company name",
+    "contact_email": "Contact Email",
+    "contact_email_placeholder": "admin@company.com",
+    "phone": "Phone Number",
+    "phone_placeholder": "+1 (555) 123-4567",
+    "address": "Address",
+    "address_placeholder": "123 Main St, City, State 12345",
+    "subscription_plan": "Subscription Plan",
+    "plan_starter": "Starter - $29/month",
+    "plan_professional": "Professional - $99/month",
+    "plan_enterprise": "Enterprise - Custom pricing",
+    "admin_user": "Admin User",
+    "first_name": "First Name",
+    "first_name_placeholder": "John",
+    "last_name": "Last Name",
+    "last_name_placeholder": "Doe",
+    "admin_email": "Admin Email",
+    "admin_email_placeholder": "john@company.com",
+    "complete_setup": "Complete Setup",
+    "setting_up": "Setting up your account...",
+    "success_title": "Setup Complete!",
+    "success_message": "Your parking management system is ready to use.",
+    "go_to_dashboard": "Go to Dashboard"
+  },
+  "companies": {
+    "title": "Companies",
+    "description": "Manage your companies and their locations",
+    "add": "Add Company",
+    "edit": "Edit Company",
+    "delete": "Delete Company",
+    "assign_admin": "Assign admin role",
+    "search": "Search companies...",
+    "table": {
+      "company_name": "Company Name",
+      "locations": "Locations",
+      "active_users": "Active Users",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "pending": "Pending"
+    }
+  },
+  "reports": {
+    "title": "Reports",
+    "description": "View and generate reports for your parking operations",
+    "tabs": {
+      "occupancy": "Occupancy",
+      "revenue": "Revenue",
+      "usage": "Usage",
+      "custom": "Custom",
+      "scheduled": "Scheduled"
+    },
+    "filters": {
+      "title": "Filters",
+      "date_range": "Date Range",
+      "location": "Location",
+      "company": "Company",
+      "select_location": "Select location",
+      "select_company": "Select company",
+      "select_date": "Select date",
+      "all_locations": "All locations",
+      "all_companies": "All companies",
+      "export_report": "Export Report"
+    },
+    "overview": {
+      "title": "Overview",
+      "subtitle": "Key metrics and insights",
+      "total_revenue": "Total Revenue",
+      "occupancy_rate": "Occupancy Rate",
+      "active_users": "Active Users",
+      "avg_duration": "Avg. Duration",
+      "from_last_month": "from last month",
+      "hours": "hours"
+    },
+    "occupancy": {
+      "title": "Occupancy Report",
+      "description": "View occupancy rates across your parking locations"
+    },
+    "revenue": {
+      "title": "Revenue Report",
+      "description": "Analyze revenue streams and financial performance",
+      "subscription": "Subscription",
+      "one_time": "One-time",
+      "penalties": "Penalties"
+    },
+    "usage": {
+      "title": "Usage Report",
+      "description": "Understand how your parking spaces are being utilized",
+      "weekday": "Weekday",
+      "weekend": "Weekend",
+      "peak_hours": "Peak Hours"
+    },
+    "custom": {
+      "title": "Custom Report Builder",
+      "description": "Create custom reports by selecting data sources and visualization options",
+      "data_source": "Data Source",
+      "visualization": "Visualization",
+      "fields": "Fields",
+      "filters": "Filters",
+      "preview": "Preview",
+      "generate": "Generate Report",
+      "save": "Save Template",
+      "export": "Export",
+      "bar_chart": "Bar Chart",
+      "line_chart": "Line Chart",
+      "pie_chart": "Pie Chart",
+      "table": "Table",
+      "occupancy_data": "Occupancy Data",
+      "revenue_data": "Revenue Data",
+      "usage_data": "Usage Data",
+      "users_data": "Users Data"
+    },
+    "scheduler": {
+      "title": "Scheduled Reports",
+      "description": "Manage your scheduled reports and create new ones",
+      "create": "Create Scheduled Report",
+      "name": "Report Name",
+      "type": "Type",
+      "frequency": "Frequency",
+      "recipients": "Recipients",
+      "status": "Status",
+      "next_run": "Next Run",
+      "actions": "Actions",
+      "active": "Active",
+      "inactive": "Inactive",
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "occupancy": "Occupancy",
+      "revenue": "Revenue",
+      "usage": "Usage"
+    },
+    "chart_placeholder": "Chart will be displayed here"
+  },
+  "reservations": {
+    "title": "Reservations",
+    "description": "Manage parking reservations and bookings",
+    "search": "Search reservations...",
+    "export": "Export",
+    "calendar_view": "Calendar View",
+    "kanban": "Kanban",
+    "list": "List",
+    "create_reservation": "Create Reservation",
+    "status": {
+      "upcoming": "Upcoming",
+      "active": "Active",
+      "expired": "Expired",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "calendar": {
+      "title": "Calendar View",
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "today": "Today",
+      "previous": "Previous",
+      "next": "Next",
+      "agenda": "Agenda",
+      "date": "Date",
+      "time": "Time",
+      "event": "Event",
+      "no_events": "No reservations in this time range"
+    },
+    "modal": {
+      "title": "Create New Reservation",
+      "description": "Complete the steps below to create a new parking reservation.",
+      "steps": {
+        "location": {
+          "title": "Select Location",
+          "description": "Choose a parking location",
+          "select_location": "Select a location",
+          "available_spots": "Available Spots",
+          "current_occupancy": "Current Occupancy"
+        },
+        "spot": {
+          "title": "Select Spot",
+          "description": "Choose an available parking spot",
+          "select_spot": "Select an available parking spot"
+        },
+        "date": {
+          "title": "Date & Time",
+          "description": "Select reservation period",
+          "reservation_type": "Reservation Type",
+          "subscription": "Subscription",
+          "subscription_desc": "Long-term recurring reservation",
+          "guest": "Guest Pass",
+          "guest_desc": "One-time reservation",
+          "date_range": "Select Date Range",
+          "start_date": "Start Date",
+          "end_date": "End Date",
+          "pick_date": "Pick a date"
+        },
+        "details": {
+          "title": "User & Vehicle",
+          "description": "Enter user and vehicle details",
+          "company": "Company",
+          "select_company": "Select a company",
+          "user": "User",
+          "select_user": "Select a user",
+          "license_plate": "License Plate",
+          "license_plate_placeholder": "e.g. ABC-123",
+          "vehicle_model": "Vehicle Model",
+          "vehicle_model_placeholder": "e.g. Tesla Model 3"
+        },
+        "review": {
+          "title": "Review & Confirm",
+          "description": "Review your reservation details",
+          "summary": "Reservation Summary",
+          "location": "Location:",
+          "spot": "Spot:",
+          "type": "Type:",
+          "dates": "Dates:",
+          "user": "User:",
+          "vehicle": "Vehicle:",
+          "ready": "Ready to confirm",
+          "ready_desc": "Click the button below to create this reservation"
+        }
+      },
+      "back": "Back",
+      "continue": "Continue",
+      "create": "Create Reservation",
+      "success": "Reservation created!",
+      "success_desc": "Your parking reservation has been successfully created."
+    }
+  },
+  "users": {
+    "title": "Users",
+    "description": "Manage users and their access permissions",
+    "search": "Search users...",
+    "export": "Export",
+    "add_user": "Add User",
+    "table": {
+      "user": "User",
+      "contact": "Contact",
+      "company": "Company",
+      "role": "Role",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pending": "Pending"
+    },
+    "roles": {
+      "admin": "Admin",
+      "manager": "Manager",
+      "user": "User"
+    },
+    "actions": {
+      "actions": "Actions",
+      "open_menu": "Open menu",
+      "edit": "Edit",
+      "assign_location": "Assign Location",
+      "deactivate": "Deactivate",
+      "activate": "Activate",
+      "delete": "Delete",
+      "view_profile": "View Profile",
+      "reset_password": "Reset Password"
+    },
+    "filters": {
+      "title": "Filters",
+      "role": "Role",
+      "status": "Status",
+      "company": "Company",
+      "search_placeholder": "Search users...",
+      "all_roles": "All Roles",
+      "all_statuses": "All Statuses",
+      "all_companies": "All Companies"
+    },
+    "tabs": {
+      "all": "All Users",
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "stats": {
+      "total_users": "Total Users",
+      "active_users": "Active Users",
+      "pending_users": "Pending Users",
+      "admin_users": "Admin Users"
+    },
+    "bulk_actions": {
+      "title": "Bulk Actions",
+      "selected": "selected",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "send_email": "Send Email",
+      "delete": "Delete",
+      "clear_selection": "Clear Selection"
+    },
+    "create": {
+      "title": "Create New User",
+      "description": "Add a new user to the system",
+      "personal_info": "Personal Information",
+      "first_name": "First Name",
+      "last_name": "Last Name",
+      "email": "Email Address",
+      "phone": "Phone Number",
+      "company_info": "Company Information",
+      "company": "Company",
+      "select_company": "Select a company",
+      "role": "Role",
+      "select_role": "Select a role",
+      "permissions": "Permissions",
+      "send_invitation": "Send invitation email",
+      "create_user": "Create User",
+      "cancel": "Cancel"
+    }
+  },
+  "language": {
+    "switch": "Switch language",
+    "en": "English",
+    "cs": "Czech"
+  }
+}

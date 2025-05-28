@@ -1,0 +1,98 @@
+[
+  {
+    "id": "comp_001",
+    "name": "TechCorp Solutions",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "active",
+    "locations_count": 5,
+    "users_count": 42,
+    "created_at": "2024-10-15T09:30:00Z",
+    "contact_email": "contact@techcorp.com",
+    "contact_phone": "+1 (555) 123-4567",
+    "address": "123 Tech Avenue, San Francisco, CA 94107"
+  },
+  {
+    "id": "comp_002",
+    "name": "Global Logistics Inc.",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "active",
+    "locations_count": 8,
+    "users_count": 67,
+    "created_at": "2024-11-02T14:45:00Z",
+    "contact_email": "info@globallogistics.com",
+    "contact_phone": "+1 (555) 234-5678",
+    "address": "456 Shipping Lane, Chicago, IL 60607"
+  },
+  {
+    "id": "comp_003",
+    "name": "Evergreen Retail",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "active",
+    "locations_count": 12,
+    "users_count": 93,
+    "created_at": "2024-11-20T11:15:00Z",
+    "contact_email": "support@evergreenretail.com",
+    "contact_phone": "+1 (555) 345-6789",
+    "address": "789 Market Street, New York, NY 10001"
+  },
+  {
+    "id": "comp_004",
+    "name": "Quantum Healthcare",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "inactive",
+    "locations_count": 3,
+    "users_count": 28,
+    "created_at": "2024-12-05T10:00:00Z",
+    "contact_email": "info@quantumhealth.com",
+    "contact_phone": "+1 (555) 456-7890",
+    "address": "321 Medical Drive, Boston, MA 02115"
+  },
+  {
+    "id": "comp_005",
+    "name": "Horizon Financial",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "active",
+    "locations_count": 6,
+    "users_count": 51,
+    "created_at": "2024-12-18T13:30:00Z",
+    "contact_email": "contact@horizonfin.com",
+    "contact_phone": "+1 (555) 567-8901",
+    "address": "555 Finance Blvd, Charlotte, NC 28202"
+  },
+  {
+    "id": "comp_006",
+    "name": "Stellar Manufacturing",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "active",
+    "locations_count": 4,
+    "users_count": 75,
+    "created_at": "2025-01-10T09:45:00Z",
+    "contact_email": "info@stellarmfg.com",
+    "contact_phone": "+1 (555) 678-9012",
+    "address": "888 Factory Road, Detroit, MI 48201"
+  },
+  {
+    "id": "comp_007",
+    "name": "Oceanic Shipping",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "pending",
+    "locations_count": 2,
+    "users_count": 19,
+    "created_at": "2025-01-25T15:20:00Z",
+    "contact_email": "support@oceanicshipping.com",
+    "contact_phone": "+1 (555) 789-0123",
+    "address": "222 Harbor Way, Seattle, WA 98101"
+  },
+  {
+    "id": "comp_008",
+    "name": "Alpine Resorts",
+    "logo_url": "/placeholder.svg?height=40&width=40",
+    "status": "active",
+    "locations_count": 7,
+    "users_count": 62,
+    "created_at": "2025-02-08T12:10:00Z",
+    "contact_email": "info@alpineresorts.com",
+    "contact_phone": "+1 (555) 890-1234",
+    "address": "444 Mountain View, Denver, CO 80202"
+  }
+]
