@@ -17,21 +17,23 @@ export default async function ReportsPage({
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold tracking-tight">{dict.reports.title}</h1>
-        <p className="text-muted-foreground">{dict.reports.description}</p>
+        <h1 className="text-3xl font-bold tracking-tight">{dict?.reports?.title || "Reports"}</h1>
+        <p className="text-muted-foreground">
+          {dict?.reports?.description || "View and generate reports for your parking operations"}
+        </p>
       </div>
 
       <ReportsFilters lang={lang} dict={dict} />
 
       <Suspense fallback={<div>Loading...</div>}>
-        <ReportsOverview lang={lang} dict={dict} />
+        <ReportsOverview lang={lang} dict={dict} companyId="comp_001" />
       </Suspense>
 
       <Tabs defaultValue="occupancy" className="w-full">
         <TabsList className="grid w-full grid-cols-3 lg:w-[400px]">
-          <TabsTrigger value="occupancy">{dict.reports.tabs.occupancy}</TabsTrigger>
-          <TabsTrigger value="revenue">{dict.reports.tabs.revenue}</TabsTrigger>
-          <TabsTrigger value="usage">{dict.reports.tabs.usage}</TabsTrigger>
+          <TabsTrigger value="occupancy">{dict?.reports?.tabs?.occupancy || "Occupancy"}</TabsTrigger>
+          <TabsTrigger value="revenue">{dict?.reports?.tabs?.revenue || "Revenue"}</TabsTrigger>
+          <TabsTrigger value="usage">{dict?.reports?.tabs?.usage || "Usage"}</TabsTrigger>
         </TabsList>
         <TabsContent value="occupancy">
           <OccupancyReport lang={lang} dict={dict} />

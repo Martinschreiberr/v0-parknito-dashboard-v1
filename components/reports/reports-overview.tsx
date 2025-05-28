@@ -20,7 +20,7 @@ import { TrendingUp, TrendingDown, Car, DollarSign, Clock, Users } from "lucide-
 interface ReportsOverviewProps {
   lang: string
   dict: any
-  companyId: string
+  companyId?: string
 }
 
 // Sample data for charts
@@ -51,30 +51,31 @@ const locationData = [
 ]
 
 export function ReportsOverview({ lang, dict, companyId }: ReportsOverviewProps) {
-  const title = dict.reports?.overview?.title || "Reports Overview"
-  const subtitle = dict.reports?.overview?.subtitle || "Key metrics and insights"
-
   return (
     <div className="space-y-6">
       {/* Key Metrics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {dict?.reports?.overview?.total_revenue || "Total Revenue"}
+            </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">$96,600</div>
             <p className="text-xs text-muted-foreground">
               <TrendingUp className="inline h-3 w-3 text-green-500" />
-              +12.5% from last month
+              +12.5% {dict?.reports?.overview?.from_last_month || "from last month"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Occupancy</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {dict?.reports?.overview?.occupancy_rate || "Avg Occupancy"}
+            </CardTitle>
             <Car className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -88,28 +89,32 @@ export function ReportsOverview({ lang, dict, companyId }: ReportsOverviewProps)
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Duration</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {dict?.reports?.overview?.avg_duration || "Avg Duration"}
+            </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">2.4h</div>
+            <div className="text-2xl font-bold">2.4{dict?.reports?.overview?.hours || "h"}</div>
             <p className="text-xs text-muted-foreground">
               <TrendingDown className="inline h-3 w-3 text-red-500" />
-              -0.3h from last month
+              -0.3h {dict?.reports?.overview?.from_last_month || "from last month"}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Users</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              {dict?.reports?.overview?.active_users || "Active Users"}
+            </CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">1,247</div>
             <p className="text-xs text-muted-foreground">
               <TrendingUp className="inline h-3 w-3 text-green-500" />
-              +8.2% from last month
+              +8.2% {dict?.reports?.overview?.from_last_month || "from last month"}
             </p>
           </CardContent>
         </Card>
