@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import type React from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { LayoutDashboard, Building2, MapPin, Calendar, Users, BarChart3, Menu, X } from "lucide-react"
+import { LayoutDashboard, Building2, MapPin, Calendar, Users, BarChart3, User, Menu, X } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -43,6 +43,7 @@ export function ParkingDashboardLayout({ children, dict, lang, companyId = "1" }
     reservations: dict?.nav?.reservations || "Reservations",
     users: dict?.nav?.users || "Users",
     reports: dict?.nav?.reports || "Reports",
+    profile: dict?.nav?.profile || "Profile",
     home: dict?.nav?.home || "Home",
     company_switcher: dict?.nav?.company_switcher || "Switch Company",
   }
@@ -78,6 +79,11 @@ export function ParkingDashboardLayout({ children, dict, lang, companyId = "1" }
       name: nav.reports,
       href: `/${lang}/dashboard/${extractedCompanyId}/reports`,
       icon: BarChart3,
+    },
+    {
+      name: nav.profile,
+      href: `/${lang}/dashboard/${extractedCompanyId}/profile`,
+      icon: User,
     },
   ]
 
@@ -126,21 +132,20 @@ export function ParkingDashboardLayout({ children, dict, lang, companyId = "1" }
         className={cn(
           "border-r bg-gray-100/40 transition-all duration-300 ease-in-out",
           "fixed inset-y-0 left-0 z-50 lg:relative lg:translate-x-0",
-          sidebarOpen ? "w-64 translate-x-0" : "w-0 -translate-x-full lg:w-16 lg:translate-x-0",
+          sidebarOpen ? "w-64 translate-x-0" : "w-16",
         )}
       >
         <div className="flex h-full flex-col">
           {/* Header */}
           <div className="flex h-14 items-center border-b px-4">
             <Link href={`/${lang}/dashboard/${extractedCompanyId}/overview`} className="font-semibold">
-              <span
-                className={cn(
-                  "text-lg tracking-tight transition-opacity duration-300",
-                  sidebarOpen ? "opacity-100" : "opacity-0 lg:opacity-0",
-                )}
-              >
-                ParkSmart
-              </span>
+              {sidebarOpen ? (
+                <span className="text-lg tracking-tight">ParkSmart</span>
+              ) : (
+                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+                  <span className="text-white font-bold text-sm">P</span>
+                </div>
+              )}
             </Link>
           </div>
 
@@ -164,7 +169,7 @@ export function ParkingDashboardLayout({ children, dict, lang, companyId = "1" }
           )}
 
           {/* Navigation */}
-          <nav className="flex-1 p-4">
+          <nav className="flex-1 p-2">
             <div className="space-y-1">
               {navigation.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`)
@@ -177,15 +182,15 @@ export function ParkingDashboardLayout({ children, dict, lang, companyId = "1" }
                       isActive
                         ? "bg-gray-200 text-gray-900 font-medium"
                         : "text-gray-600 hover:text-gray-900 hover:bg-gray-100",
-                      !sidebarOpen && "lg:justify-center lg:px-2",
+                      !sidebarOpen && "lg:justify-center lg:px-2 lg:py-3",
                     )}
                     title={!sidebarOpen ? item.name : undefined}
                   >
-                    <item.icon className="h-4 w-4 flex-shrink-0" />
+                    <item.icon className={cn("h-4 w-4 flex-shrink-0", !sidebarOpen && "lg:h-5 lg:w-5")} />
                     <span
                       className={cn(
-                        "transition-opacity duration-300",
-                        sidebarOpen ? "opacity-100" : "opacity-0 lg:opacity-0",
+                        "transition-all duration-300 overflow-hidden",
+                        sidebarOpen ? "opacity-100 w-auto" : "opacity-0 w-0 lg:hidden",
                       )}
                     >
                       {item.name}

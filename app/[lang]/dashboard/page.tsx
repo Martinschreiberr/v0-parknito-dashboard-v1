@@ -6,19 +6,28 @@ interface DashboardRedirectProps {
 }
 
 export default async function DashboardRedirect({ params }: DashboardRedirectProps) {
+  let companies: any[] = []
+
   try {
     // Fetch companies from external data folder
-    const companies = await Database.getCompanies()
+    companies = await Database.getCompanies()
+  } catch (error) {
+    console.error("Error fetching companies:", error)
+    // If database fails, redirect to hardcoded company ID
+    redirect(`/${params.lang}/dashboard/1/overview`)
+  }
 
-    // If companies exist, redirect to the first active one
-    if (companies && companies.length > 0) {
-      const activeCompany = companies.find((company: any) => company.status === "active")
-      const defaultCompany = activeCompany || companies[0]
-      redirect(`/${params.lang}/dashboard/${defaultCompany.id}/overview`)
-    }
+  // If companies exist, redirect to the first active one
+  if (companies && companies.length > 0) {
+    const activeCompany = companies.find((company: any) => company.status === "active")
+    const defaultCompany = activeCompany || companies[0]
+    redirect(`/${params.lang}/dashboard/${defaultCompany.id}/overview`)
+  }
 
-    // If no companies exist, create a default one
-    const newCompany = await Database.createCompany({
+  // If no companies exist, create a default one
+  let newCompany: any
+  try {
+    newCompany = await Database.createCompany({
       name: "Default Company",
       email: "admin@company.com",
       phone: "+1-555-0123",
@@ -29,20 +38,14 @@ export default async function DashboardRedirect({ params }: DashboardRedirectPro
       user_count: 1,
       monthly_revenue: 0,
     })
-
-    // Redirect to the new company (this will throw a redirect error, which is expected)
-    redirect(`/${params.lang}/dashboard/${newCompany.id}/overview`)
-  } catch (error: any) {
-    // Check if this is a Next.js redirect error (which is expected behavior)
-    if (error?.digest?.includes("NEXT_REDIRECT")) {
-      // Re-throw redirect errors as they are expected
-      throw error
-    }
-
-    console.error("Error in dashboard redirect:", error)
-    // Final fallback for any other errors
+  } catch (createError) {
+    console.error("Error creating default company:", createError)
+    // Final fallback
     redirect(`/${params.lang}/dashboard/1/overview`)
   }
+
+  // Redirect to the new company
+  redirect(`/${params.lang}/dashboard/${newCompany.id}/overview`)
 }
 
 // Generate static params for all supported languages
