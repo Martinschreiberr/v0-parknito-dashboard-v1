@@ -45,11 +45,9 @@ export async function middleware(request: NextRequest) {
           cookies: {
             get(name: string) {
               const cookie = request.cookies.get(name)
-              // console.log(`[Middleware] Getting cookie ${name}: ${cookie ? "found" : "not found"}`) // Removed verbose logging
               return cookie?.value
             },
             set(name: string, value: string, options: any) {
-              // console.log(`[Middleware] Setting cookie ${name}`) // Removed verbose logging
               request.cookies.set({
                 name,
                 value,
@@ -67,7 +65,6 @@ export async function middleware(request: NextRequest) {
               })
             },
             remove(name: string, options: any) {
-              // console.log(`[Middleware] Removing cookie ${name}`) // Removed verbose logging
               request.cookies.set({
                 name,
                 value: "",
