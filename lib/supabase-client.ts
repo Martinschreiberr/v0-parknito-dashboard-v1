@@ -15,12 +15,10 @@ export const supabase =
   createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
       cookieOptions: {
-        name: "sb", // Ensure consistent cookie naming
+        name: "sb", // Ensure consistent cookie naming for client-side
       },
     },
   })
 
 // Store the instance globally to prevent re-creation on HMR
-// This assignment is safe as globalThis.supabaseInstance will only be undefined on the very first load
-// or after a full page refresh, not during HMR.
 globalThis.supabaseInstance = supabase

@@ -1,5 +1,5 @@
 import { createServerSupabaseClient } from "./supabase"
-import type { Company, UserProfile, Location, Spot, Reservation } from "./supabase"
+import type { Company, UserProfile, Location, Spot, Reservation } from "@/types" // Assuming types are defined here
 
 // Supabase service functions using server client
 export class SupabaseService {

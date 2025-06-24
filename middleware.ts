@@ -45,9 +45,13 @@ export async function middleware(request: NextRequest) {
           cookies: {
             get(name: string) {
               const cookie = request.cookies.get(name)
+              console.log(
+                `[Middleware] Cookie GET: name='${name}', value='${cookie?.value ? cookie.value.substring(0, 10) + "..." : "null"}'`,
+              )
               return cookie?.value
             },
             set(name: string, value: string, options: any) {
+              console.log(`[Middleware] Cookie SET: name='${name}', value='${value.substring(0, 10)}...'`)
               request.cookies.set({
                 name,
                 value,
@@ -65,6 +69,7 @@ export async function middleware(request: NextRequest) {
               })
             },
             remove(name: string, options: any) {
+              console.log(`[Middleware] Cookie REMOVE: name='${name}'`)
               request.cookies.set({
                 name,
                 value: "",
@@ -107,7 +112,6 @@ export async function middleware(request: NextRequest) {
           if (userError) {
             console.log(`[Middleware] Error getting user for protected route: ${userError.message}`)
           }
-
           console.log(`[Middleware] Protected route (${pathname}): User ID - ${user ? user.id : "null"}`)
 
           if (!user) {
@@ -134,7 +138,6 @@ export async function middleware(request: NextRequest) {
           if (userError) {
             console.log(`[Middleware] Error getting user for auth route: ${userError.message}`)
           }
-
           console.log(`[Middleware] Auth route (${pathname}): User ID - ${user ? user.id : "null"}`)
 
           if (user) {

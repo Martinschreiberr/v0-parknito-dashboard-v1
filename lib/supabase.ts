@@ -11,11 +11,9 @@ export function createServerSupabaseClient() {
     console.error(
       "Supabase environment variables NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set. Please ensure they are configured in your Vercel project.",
     )
-    // Throwing an error here will stop the process and make the issue clear.
     throw new Error("Supabase environment variables missing.")
   }
 
-  // Log the URL being used (partially masked for security)
   console.log(
     `Attempting to connect to Supabase URL: ${supabaseUrl.substring(0, 20)}...${supabaseUrl.substring(supabaseUrl.length - 10)}`,
   )
@@ -41,6 +39,9 @@ export function createServerSupabaseClient() {
           // We're only interested in deleting the cookies here.
         }
       },
+    },
+    cookieOptions: {
+      name: "sb", // Ensure consistent cookie naming for server client
     },
   })
 }
