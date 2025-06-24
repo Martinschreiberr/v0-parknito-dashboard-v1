@@ -72,6 +72,21 @@ export class SupabaseService {
     }
   }
 
+  static async deleteCompany(id: string): Promise<boolean> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { error } = await supabase.from("companies").delete().eq("id", id)
+      if (error) {
+        console.error("Supabase error deleting company:", error)
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error("Error in deleteCompany:", error)
+      return false
+    }
+  }
+
   // User Profiles
   static async getUserProfile(userId: string): Promise<UserProfile | null> {
     try {
@@ -113,6 +128,23 @@ export class SupabaseService {
     }
   }
 
+  static async createUser(
+    userData: Omit<UserProfile, "id" | "created_at" | "updated_at">,
+  ): Promise<UserProfile | null> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { data, error } = await supabase.from("user_profiles").insert([userData]).select().single()
+      if (error) {
+        console.error("Supabase error creating user profile:", error)
+        return null
+      }
+      return data
+    } catch (error) {
+      console.error("Error in createUser:", error)
+      return null
+    }
+  }
+
   static async updateUserProfile(userId: string, profileData: Partial<UserProfile>): Promise<UserProfile | null> {
     try {
       const supabase = createServerSupabaseClient()
@@ -132,6 +164,21 @@ export class SupabaseService {
     } catch (error) {
       console.error("Error in updateUserProfile:", error)
       return null
+    }
+  }
+
+  static async deleteUser(id: string): Promise<boolean> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { error } = await supabase.from("user_profiles").delete().eq("id", id)
+      if (error) {
+        console.error("Supabase error deleting user profile:", error)
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error("Error in deleteUser:", error)
+      return false
     }
   }
 
@@ -195,6 +242,36 @@ export class SupabaseService {
     }
   }
 
+  static async updateLocation(id: string, locationData: Partial<Location>): Promise<Location | null> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { data, error } = await supabase.from("locations").update(locationData).eq("id", id).select().single()
+      if (error) {
+        console.error("Supabase error updating location:", error)
+        return null
+      }
+      return data
+    } catch (error) {
+      console.error("Error in updateLocation:", error)
+      return null
+    }
+  }
+
+  static async deleteLocation(id: string): Promise<boolean> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { error } = await supabase.from("locations").delete().eq("id", id)
+      if (error) {
+        console.error("Supabase error deleting location:", error)
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error("Error in deleteLocation:", error)
+      return false
+    }
+  }
+
   // Spots
   static async getSpots(locationId?: string): Promise<Spot[]> {
     try {
@@ -236,6 +313,36 @@ export class SupabaseService {
     }
   }
 
+  static async updateSpot(id: string, spotData: Partial<Spot>): Promise<Spot | null> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { data, error } = await supabase.from("spots").update(spotData).eq("id", id).select().single()
+      if (error) {
+        console.error("Supabase error updating spot:", error)
+        return null
+      }
+      return data
+    } catch (error) {
+      console.error("Error in updateSpot:", error)
+      return null
+    }
+  }
+
+  static async deleteSpot(id: string): Promise<boolean> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { error } = await supabase.from("spots").delete().eq("id", id)
+      if (error) {
+        console.error("Supabase error deleting spot:", error)
+        return false
+      }
+      return true
+    } catch (error) {
+      console.error("Error in deleteSpot:", error)
+      return false
+    }
+  }
+
   // Reservations
   static async getReservations(userId?: string, locationId?: string): Promise<Reservation[]> {
     try {
@@ -261,6 +368,23 @@ export class SupabaseService {
     } catch (error) {
       console.error("Error in getReservations:", error)
       return []
+    }
+  }
+
+  static async getReservationById(id: string): Promise<Reservation | null> {
+    try {
+      const supabase = createServerSupabaseClient()
+      const { data, error } = await supabase.from("reservations").select("*").eq("id", id).single()
+
+      if (error) {
+        console.error("Supabase error fetching reservation:", error)
+        return null
+      }
+
+      return data
+    } catch (error) {
+      console.error("Error in getReservationById:", error)
+      return null
     }
   }
 
@@ -298,5 +422,9 @@ export class SupabaseService {
       console.error("Error in updateReservation:", error)
       return null
     }
+  }
+
+  static async cancelReservation(id: string): Promise<Reservation | null> {
+    return this.updateReservation(id, { status: "cancelled" })
   }
 }
