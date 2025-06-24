@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { LanguageSwitcher } from "@/components/language-switcher"
+import { UserButton } from "@/components/auth/user-button"
 import { Menu, X, Car } from "lucide-react"
 
 interface NavbarProps {
@@ -66,16 +67,7 @@ export const LandingNavbar = ({ dict, lang = "en" }: NavbarProps) => {
         {/* Desktop Actions */}
         <div className="hidden items-center space-x-4 md:flex">
           <LanguageSwitcher currentLang={lang} />
-          <Link href={`/${lang}/login`}>
-            <Button variant="ghost" size="sm">
-              {dict?.login || "Login"}
-            </Button>
-          </Link>
-          <Link href={`/${lang}/dashboard`}>
-            <Button size="sm" className="bg-blue-600 hover:bg-blue-700">
-              {dict?.dashboard || "Dashboard"}
-            </Button>
-          </Link>
+          <UserButton lang={lang} />
         </div>
 
         {/* Mobile menu button */}
@@ -120,16 +112,7 @@ export const LandingNavbar = ({ dict, lang = "en" }: NavbarProps) => {
               {dict?.contact || "Contact"}
             </Link>
             <div className="border-t border-gray-200 pt-4 space-y-2">
-              <Link href={`/${lang}/login`}>
-                <Button variant="outline" className="w-full" onClick={() => setIsOpen(false)}>
-                  {dict?.login || "Login"}
-                </Button>
-              </Link>
-              <Link href={`/${lang}/dashboard`}>
-                <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => setIsOpen(false)}>
-                  {dict?.dashboard || "Dashboard"}
-                </Button>
-              </Link>
+              <UserButton lang={lang} />
             </div>
           </div>
         </div>

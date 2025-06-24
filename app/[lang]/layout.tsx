@@ -1,18 +1,10 @@
 import type React from "react"
+import { Inter } from "next/font/google"
 import { getDictionary } from "@/lib/dictionary"
-import { LanguageSwitcher } from "@/components/language-switcher"
-import { supportedLanguages } from "@/middleware"
+import { AuthProvider } from "@/lib/auth"
+import "../globals.css"
 
-export async function generateStaticParams() {
-  return supportedLanguages.map((lang) => ({ lang }))
-}
-
-export async function generateMetadata({ params: { lang } }) {
-  const dictionary = await getDictionary(lang)
-  return {
-    title: dictionary.title,
-  }
-}
+const inter = Inter({ subsets: ["latin"] })
 
 export default async function RootLayout({
   children,
@@ -21,19 +13,12 @@ export default async function RootLayout({
   children: React.ReactNode
   params: { lang: string }
 }) {
-  const safeLang = params.lang || "en-us"
-  const dict = await getDictionary(safeLang)
+  const dict = await getDictionary(params.lang)
 
   return (
-    <html lang={params.lang.split(/[-_]/)[0]}>
-      <head>
-        {/* You can add global metadata here
-        <meta name="description" content="A description of your app" /> */}
-      </head>
+    <html lang={params.lang} className={inter.className}>
       <body>
-        {/* In the layout component, ensure lang is passed correctly */}
-        {/* <LanguageSwitcher currentLang={params.lang || "en-us"} />  */}
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   )

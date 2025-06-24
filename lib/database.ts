@@ -1,271 +1,465 @@
-import fs from "fs/promises"
-import path from "path"
+import { SupabaseService } from "./supabase-service"
+import {
+  companies as staticCompanies,
+  locations as staticLocations,
+  users as staticUsers,
+  spots as staticSpots,
+  reservations as staticReservations,
+} from "@/data"
+import type { Company, Location, UserProfile, Spot, Reservation } from "./supabase"
 
-// Database configuration
-const DB_PATH = path.join(process.cwd(), "..", "parking-data")
+// Helper to check if Supabase environment variables are configured
+function isSupabaseConfigured(): boolean {
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  return !!supabaseUrl && !!supabaseAnonKey && supabaseUrl.includes("supabase.co")
+}
 
-// Generic database operations
+// Database service functions with Supabase integration and JSON fallback
 export class Database {
-  private static async ensureDataDirectory(): Promise<void> {
-    try {
-      await fs.access(DB_PATH)
-    } catch {
-      // Directory doesn't exist, create it
-      await fs.mkdir(DB_PATH, { recursive: true })
-    }
-  }
-
-  private static async readFile<T>(filename: string): Promise<T[]> {
-    try {
-      await this.ensureDataDirectory()
-      const filePath = path.join(DB_PATH, filename)
-
+  static async getCompanies(): Promise<{ companies: Company[]; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
       try {
-        const data = await fs.readFile(filePath, "utf8")
-        return JSON.parse(data)
-      } catch (readError) {
-        // File doesn't exist, return empty array
-        console.log(`File ${filename} doesn't exist, returning empty array`)
-        return []
+        const companies = await SupabaseService.getCompanies()
+        if (companies && companies.length > 0) {
+          return { companies, source: "supabase" }
+        } else {
+          console.warn("Supabase returned no companies, falling back to JSON.")
+          return { companies: staticCompanies as Company[], source: "json" }
+        }
+      } catch (error) {
+        console.error("Error in getCompanies from Supabase, falling back to JSON:", error)
+        return { companies: staticCompanies as Company[], source: "json" }
       }
-    } catch (error) {
-      console.error(`Error reading ${filename}:`, error)
-      return []
+    } else {
+      console.warn("Supabase not configured, using JSON data for companies.")
+      return { companies: staticCompanies as Company[], source: "json" }
     }
   }
 
-  private static async writeFile<T>(filename: string, data: T[]): Promise<void> {
-    try {
-      await this.ensureDataDirectory()
-      const filePath = path.join(DB_PATH, filename)
-      await fs.writeFile(filePath, JSON.stringify(data, null, 2), "utf8")
-    } catch (error) {
-      console.error(`Error writing ${filename}:`, error)
-      throw error
+  static async getCompanyById(id: string): Promise<{ company: Company | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const company = await SupabaseService.getCompanyById(id)
+        if (company) {
+          return { company, source: "supabase" }
+        } else {
+          console.warn(`Supabase returned no company for ID ${id}, falling back to JSON.`)
+          const staticCompany = staticCompanies.find((c) => c.id === id) as Company | undefined
+          return { company: staticCompany || null, source: "json" }
+        }
+      } catch (error) {
+        console.error(`Error in getCompanyById from Supabase for ID ${id}, falling back to JSON:`, error)
+        const staticCompany = staticCompanies.find((c) => c.id === id) as Company | undefined
+        return { company: staticCompany || null, source: "json" }
+      }
+    } else {
+      console.warn(`Supabase not configured, using JSON data for company ID ${id}.`)
+      const staticCompany = staticCompanies.find((c) => c.id === id) as Company | undefined
+      return { company: staticCompany || null, source: "json" }
     }
   }
 
-  // Users operations
-  static async getUsers() {
-    return this.readFile("users.json")
-  }
-
-  static async getUserById(id: string) {
-    const users = await this.getUsers()
-    return users.find((user: any) => user.id === id) || null
-  }
-
-  static async createUser(userData: any) {
-    const users = await this.getUsers()
-    const newId = `usr_${String(users.length + 1).padStart(3, "0")}`
-    const newUser = {
-      id: newId,
-      ...userData,
-      created_at: new Date().toISOString(),
+  static async createCompany(
+    companyData: Omit<Company, "id" | "created_at" | "updated_at">,
+  ): Promise<{ company: Company | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const company = await SupabaseService.createCompany(companyData)
+        if (company) {
+          return { company, source: "supabase" }
+        } else {
+          console.warn("Supabase failed to create company, falling back to JSON (simulated).")
+          // In a real app, you might not "create" in JSON, but for demo, simulate.
+          return {
+            company: {
+              ...companyData,
+              id: "new-json-id",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            source: "json",
+          }
+        }
+      } catch (error) {
+        console.error("Error in createCompany from Supabase, falling back to JSON (simulated):", error)
+        return {
+          company: {
+            ...companyData,
+            id: "new-json-id",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          source: "json",
+        }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for createCompany (simulated).")
+      return {
+        company: {
+          ...companyData,
+          id: "new-json-id",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        source: "json",
+      }
     }
-    users.push(newUser)
-    await this.writeFile("users.json", users)
-    return newUser
   }
 
-  static async updateUser(id: string, userData: any) {
-    const users = await this.getUsers()
-    const userIndex = users.findIndex((user: any) => user.id === id)
-    if (userIndex === -1) return null
-
-    users[userIndex] = { ...users[userIndex], ...userData }
-    await this.writeFile("users.json", users)
-    return users[userIndex]
-  }
-
-  static async deleteUser(id: string) {
-    const users = await this.getUsers()
-    const filteredUsers = users.filter((user: any) => user.id !== id)
-    if (filteredUsers.length === users.length) return false
-
-    await this.writeFile("users.json", filteredUsers)
-    return true
-  }
-
-  // Companies operations
-  static async getCompanies() {
-    return this.readFile("companies.json")
-  }
-
-  static async getCompanyById(id: string) {
-    const companies = await this.getCompanies()
-    return companies.find((company: any) => company.id === id) || null
-  }
-
-  static async createCompany(companyData: any) {
-    const companies = await this.getCompanies()
-    const newId = `comp_${String(companies.length + 1).padStart(3, "0")}`
-    const newCompany = {
-      id: newId,
-      ...companyData,
-      created_at: new Date().toISOString(),
+  static async updateCompany(
+    id: string,
+    companyData: Partial<Company>,
+  ): Promise<{ company: Company | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const company = await SupabaseService.updateCompany(id, companyData)
+        if (company) {
+          return { company, source: "supabase" }
+        } else {
+          console.warn(`Supabase failed to update company for ID ${id}, falling back to JSON (simulated).`)
+          const staticCompany = staticCompanies.find((c) => c.id === id) as Company | undefined
+          return { company: staticCompany ? { ...staticCompany, ...companyData } : null, source: "json" }
+        }
+      } catch (error) {
+        console.error(`Error in updateCompany from Supabase for ID ${id}, falling back to JSON (simulated):`, error)
+        const staticCompany = staticCompanies.find((c) => c.id === id) as Company | undefined
+        return { company: staticCompany ? { ...staticCompany, ...companyData } : null, source: "json" }
+      }
+    } else {
+      console.warn(`Supabase not configured, using JSON data for updateCompany ID ${id} (simulated).`)
+      const staticCompany = staticCompanies.find((c) => c.id === id) as Company | undefined
+      return { company: staticCompany ? { ...staticCompany, ...companyData } : null, source: "json" }
     }
-    companies.push(newCompany)
-    await this.writeFile("companies.json", companies)
-    return newCompany
   }
 
-  static async updateCompany(id: string, companyData: any) {
-    const companies = await this.getCompanies()
-    const companyIndex = companies.findIndex((company: any) => company.id === id)
-    if (companyIndex === -1) return null
-
-    companies[companyIndex] = { ...companies[companyIndex], ...companyData }
-    await this.writeFile("companies.json", companies)
-    return companies[companyIndex]
-  }
-
-  static async deleteCompany(id: string) {
-    const companies = await this.getCompanies()
-    const filteredCompanies = companies.filter((company: any) => company.id !== id)
-    if (filteredCompanies.length === companies.length) return false
-
-    await this.writeFile("companies.json", filteredCompanies)
-    return true
-  }
-
-  // Locations operations
-  static async getLocations() {
-    return this.readFile("locations.json")
-  }
-
-  static async getLocationById(id: string) {
-    const locations = await this.getLocations()
-    return locations.find((location: any) => location.id === id) || null
-  }
-
-  static async getLocationsByCompany(companyId: string) {
-    const locations = await this.getLocations()
-    return locations.filter((location: any) => location.company_id === companyId)
-  }
-
-  static async createLocation(locationData: any) {
-    const locations = await this.getLocations()
-    const newId = `loc_${String(locations.length + 1).padStart(3, "0")}`
-    const newLocation = {
-      id: newId,
-      ...locationData,
-      created_at: new Date().toISOString(),
+  static async getUsers(companyId?: string): Promise<{ users: UserProfile[]; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const users = await SupabaseService.getUsers(companyId)
+        if (users && users.length > 0) {
+          return { users, source: "supabase" }
+        } else {
+          console.warn("Supabase returned no users, falling back to JSON.")
+          return { users: staticUsers as UserProfile[], source: "json" }
+        }
+      } catch (error) {
+        console.error("Error in getUsers from Supabase, falling back to JSON:", error)
+        return { users: staticUsers as UserProfile[], source: "json" }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for users.")
+      return { users: staticUsers as UserProfile[], source: "json" }
     }
-    locations.push(newLocation)
-    await this.writeFile("locations.json", locations)
-    return newLocation
   }
 
-  static async updateLocation(id: string, locationData: any) {
-    const locations = await this.getLocations()
-    const locationIndex = locations.findIndex((location: any) => location.id === id)
-    if (locationIndex === -1) return null
-
-    locations[locationIndex] = { ...locations[locationIndex], ...locationData }
-    await this.writeFile("locations.json", locations)
-    return locations[locationIndex]
-  }
-
-  static async deleteLocation(id: string) {
-    const locations = await this.getLocations()
-    const filteredLocations = locations.filter((location: any) => location.id !== id)
-    if (filteredLocations.length === locations.length) return false
-
-    await this.writeFile("locations.json", filteredLocations)
-    return true
-  }
-
-  // Reservations operations
-  static async getReservations() {
-    return this.readFile("reservations.json")
-  }
-
-  static async getReservationById(id: string) {
-    const reservations = await this.getReservations()
-    return reservations.find((reservation: any) => reservation.id === id) || null
-  }
-
-  static async getReservationsByUser(userId: string) {
-    const reservations = await this.getReservations()
-    return reservations.filter((reservation: any) => reservation.user_id === userId)
-  }
-
-  static async getReservationsByLocation(locationId: string) {
-    const reservations = await this.getReservations()
-    return reservations.filter((reservation: any) => reservation.location_id === locationId)
-  }
-
-  static async createReservation(reservationData: any) {
-    const reservations = await this.getReservations()
-    const newId = `res_${String(reservations.length + 1).padStart(3, "0")}`
-    const newReservation = {
-      id: newId,
-      ...reservationData,
-      created_at: new Date().toISOString(),
+  static async getUserProfile(userId: string): Promise<{ user: UserProfile | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const user = await SupabaseService.getUserProfile(userId)
+        if (user) {
+          return { user, source: "supabase" }
+        } else {
+          console.warn(`Supabase returned no user profile for ID ${userId}, falling back to JSON.`)
+          const staticUser = staticUsers.find((u) => u.id === userId) as UserProfile | undefined
+          return { user: staticUser || null, source: "json" }
+        }
+      } catch (error) {
+        console.error(`Error in getUserProfile from Supabase for ID ${userId}, falling back to JSON:`, error)
+        const staticUser = staticUsers.find((u) => u.id === userId) as UserProfile | undefined
+        return { user: staticUser || null, source: "json" }
+      }
+    } else {
+      console.warn(`Supabase not configured, using JSON data for user profile ID ${userId}.`)
+      const staticUser = staticUsers.find((u) => u.id === userId) as UserProfile | undefined
+      return { user: staticUser || null, source: "json" }
     }
-    reservations.push(newReservation)
-    await this.writeFile("reservations.json", reservations)
-    return newReservation
   }
 
-  static async updateReservation(id: string, reservationData: any) {
-    const reservations = await this.getReservations()
-    const reservationIndex = reservations.findIndex((reservation: any) => reservation.id === id)
-    if (reservationIndex === -1) return null
-
-    reservations[reservationIndex] = { ...reservations[reservationIndex], ...reservationData }
-    await this.writeFile("reservations.json", reservations)
-    return reservations[reservationIndex]
-  }
-
-  static async cancelReservation(id: string) {
-    return this.updateReservation(id, { status: "cancelled" })
-  }
-
-  // Spots operations
-  static async getSpots() {
-    return this.readFile("spots.json")
-  }
-
-  static async getSpotById(id: string) {
-    const spots = await this.getSpots()
-    return spots.find((spot: any) => spot.id === id) || null
-  }
-
-  static async getSpotsByLocation(locationId: string) {
-    const spots = await this.getSpots()
-    return spots.filter((spot: any) => spot.location_id === locationId)
-  }
-
-  static async createSpot(spotData: any) {
-    const spots = await this.getSpots()
-    const newId = `spot_${String(spots.length + 1).padStart(3, "0")}`
-    const newSpot = {
-      id: newId,
-      ...spotData,
+  static async updateUserProfile(
+    userId: string,
+    profileData: Partial<UserProfile>,
+  ): Promise<{ user: UserProfile | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const user = await SupabaseService.updateUserProfile(userId, profileData)
+        if (user) {
+          return { user, source: "supabase" }
+        } else {
+          console.warn(`Supabase failed to update user profile for ID ${userId}, falling back to JSON (simulated).`)
+          const staticUser = staticUsers.find((u) => u.id === userId) as UserProfile | undefined
+          return { user: staticUser ? { ...staticUser, ...profileData } : null, source: "json" }
+        }
+      } catch (error) {
+        console.error(
+          `Error in updateUserProfile from Supabase for ID ${userId}, falling back to JSON (simulated):`,
+          error,
+        )
+        const staticUser = staticUsers.find((u) => u.id === userId) as UserProfile | undefined
+        return { user: staticUser ? { ...staticUser, ...profileData } : null, source: "json" }
+      }
+    } else {
+      console.warn(`Supabase not configured, using JSON data for updateUserProfile ID ${userId} (simulated).`)
+      const staticUser = staticUsers.find((u) => u.id === userId) as UserProfile | undefined
+      return { user: staticUser ? { ...staticUser, ...profileData } : null, source: "json" }
     }
-    spots.push(newSpot)
-    await this.writeFile("spots.json", spots)
-    return newSpot
   }
 
-  static async updateSpot(id: string, spotData: any) {
-    const spots = await this.getSpots()
-    const spotIndex = spots.findIndex((spot: any) => spot.id === id)
-    if (spotIndex === -1) return null
-
-    spots[spotIndex] = { ...spots[spotIndex], ...spotData }
-    await this.writeFile("spots.json", spots)
-    return spots[spotIndex]
+  static async getLocations(companyId?: string): Promise<{ locations: Location[]; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const locations = await SupabaseService.getLocations(companyId)
+        if (locations && locations.length > 0) {
+          return { locations, source: "supabase" }
+        } else {
+          console.warn("Supabase returned no locations, falling back to JSON.")
+          return { locations: staticLocations as Location[], source: "json" }
+        }
+      } catch (error) {
+        console.error("Error in getLocations from Supabase, falling back to JSON:", error)
+        return { locations: staticLocations as Location[], source: "json" }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for locations.")
+      return { locations: staticLocations as Location[], source: "json" }
+    }
   }
 
-  static async deleteSpot(id: string) {
-    const spots = await this.getSpots()
-    const filteredSpots = spots.filter((spot: any) => spot.id !== id)
-    if (filteredSpots.length === spots.length) return false
+  static async getLocationById(id: string): Promise<{ location: Location | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const location = await SupabaseService.getLocationById(id)
+        if (location) {
+          return { location, source: "supabase" }
+        } else {
+          console.warn(`Supabase returned no location for ID ${id}, falling back to JSON.`)
+          const staticLocation = staticLocations.find((l) => l.id === id) as Location | undefined
+          return { location: staticLocation || null, source: "json" }
+        }
+      } catch (error) {
+        console.error(`Error in getLocationById from Supabase for ID ${id}, falling back to JSON:`, error)
+        const staticLocation = staticLocations.find((l) => l.id === id) as Location | undefined
+        return { location: staticLocation || null, source: "json" }
+      }
+    } else {
+      console.warn(`Supabase not configured, using JSON data for location ID ${id}.`)
+      const staticLocation = staticLocations.find((l) => l.id === id) as Location | undefined
+      return { location: staticLocation || null, source: "json" }
+    }
+  }
 
-    await this.writeFile("spots.json", filteredSpots)
-    return true
+  static async createLocation(
+    locationData: Omit<Location, "id" | "created_at" | "updated_at">,
+  ): Promise<{ location: Location | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const location = await SupabaseService.createLocation(locationData)
+        if (location) {
+          return { location, source: "supabase" }
+        } else {
+          console.warn("Supabase failed to create location, falling back to JSON (simulated).")
+          return {
+            location: {
+              ...locationData,
+              id: "new-json-id",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            source: "json",
+          }
+        }
+      } catch (error) {
+        console.error("Error in createLocation from Supabase, falling back to JSON (simulated):", error)
+        return {
+          location: {
+            ...locationData,
+            id: "new-json-id",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          source: "json",
+        }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for createLocation (simulated).")
+      return {
+        location: {
+          ...locationData,
+          id: "new-json-id",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        source: "json",
+      }
+    }
+  }
+
+  static async getSpots(locationId?: string): Promise<{ spots: Spot[]; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const spots = await SupabaseService.getSpots(locationId)
+        if (spots && spots.length > 0) {
+          return { spots, source: "supabase" }
+        } else {
+          console.warn("Supabase returned no spots, falling back to JSON.")
+          return { spots: staticSpots as Spot[], source: "json" }
+        }
+      } catch (error) {
+        console.error("Error in getSpots from Supabase, falling back to JSON:", error)
+        return { spots: staticSpots as Spot[], source: "json" }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for spots.")
+      return { spots: staticSpots as Spot[], source: "json" }
+    }
+  }
+
+  static async createSpot(
+    spotData: Omit<Spot, "id" | "created_at" | "updated_at">,
+  ): Promise<{ spot: Spot | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const spot = await SupabaseService.createSpot(spotData)
+        if (spot) {
+          return { spot, source: "supabase" }
+        } else {
+          console.warn("Supabase failed to create spot, falling back to JSON (simulated).")
+          return {
+            spot: {
+              ...spotData,
+              id: "new-json-id",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            source: "json",
+          }
+        }
+      } catch (error) {
+        console.error("Error in createSpot from Supabase, falling back to JSON (simulated):", error)
+        return {
+          spot: {
+            ...spotData,
+            id: "new-json-id",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          source: "json",
+        }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for createSpot (simulated).")
+      return {
+        spot: {
+          ...spotData,
+          id: "new-json-id",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        source: "json",
+      }
+    }
+  }
+
+  static async getReservations(
+    userId?: string,
+    locationId?: string,
+  ): Promise<{ reservations: Reservation[]; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const reservations = await SupabaseService.getReservations(userId, locationId)
+        if (reservations && reservations.length > 0) {
+          return { reservations, source: "supabase" }
+        } else {
+          console.warn("Supabase returned no reservations, falling back to JSON.")
+          return { reservations: staticReservations as Reservation[], source: "json" }
+        }
+      } catch (error) {
+        console.error("Error in getReservations from Supabase, falling back to JSON:", error)
+        return { reservations: staticReservations as Reservation[], source: "json" }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for reservations.")
+      return { reservations: staticReservations as Reservation[], source: "json" }
+    }
+  }
+
+  static async createReservation(
+    reservationData: Omit<Reservation, "id" | "created_at" | "updated_at">,
+  ): Promise<{ reservation: Reservation | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const reservation = await SupabaseService.createReservation(reservationData)
+        if (reservation) {
+          return { reservation, source: "supabase" }
+        } else {
+          console.warn("Supabase failed to create reservation, falling back to JSON (simulated).")
+          return {
+            reservation: {
+              ...reservationData,
+              id: "new-json-id",
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString(),
+            },
+            source: "json",
+          }
+        }
+      } catch (error) {
+        console.error("Error in createReservation from Supabase, falling back to JSON (simulated):", error)
+        return {
+          reservation: {
+            ...reservationData,
+            id: "new-json-id",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          },
+          source: "json",
+        }
+      }
+    } else {
+      console.warn("Supabase not configured, using JSON data for createReservation (simulated).")
+      return {
+        reservation: {
+          ...reservationData,
+          id: "new-json-id",
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        },
+        source: "json",
+      }
+    }
+  }
+
+  static async updateReservation(
+    id: string,
+    reservationData: Partial<Reservation>,
+  ): Promise<{ reservation: Reservation | null; source: "supabase" | "json" }> {
+    if (isSupabaseConfigured()) {
+      try {
+        const reservation = await SupabaseService.updateReservation(id, reservationData)
+        if (reservation) {
+          return { reservation, source: "supabase" }
+        } else {
+          console.warn(`Supabase failed to update reservation for ID ${id}, falling back to JSON (simulated).`)
+          const staticReservation = staticReservations.find((r) => r.id === id) as Reservation | undefined
+          return {
+            reservation: staticReservation ? { ...staticReservation, ...reservationData } : null,
+            source: "json",
+          }
+        }
+      } catch (error) {
+        console.error(`Error in updateReservation from Supabase for ID ${id}, falling back to JSON (simulated):`, error)
+        const staticReservation = staticReservations.find((r) => r.id === id) as Reservation | undefined
+        return { reservation: staticReservation ? { ...staticReservation, ...reservationData } : null, source: "json" }
+      }
+    } else {
+      console.warn(`Supabase not configured, using JSON data for updateReservation ID ${id} (simulated).`)
+      const staticReservation = staticReservations.find((r) => r.id === id) as Reservation | undefined
+      return { reservation: staticReservation ? { ...staticReservation, ...reservationData } : null, source: "json" }
+    }
+  }
+
+  // New method to get the current database status (Supabase or JSON)
+  static async getDatabaseStatus(): Promise<"supabase" | "json"> {
+    return isSupabaseConfigured() ? "supabase" : "json"
   }
 }

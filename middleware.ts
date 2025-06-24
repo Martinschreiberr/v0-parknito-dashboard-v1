@@ -1,110 +1,196 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { match } from "@formatjs/intl-localematcher"
-import Negotiator from "negotiator"
+import { createServerClient } from "@supabase/ssr"
+import { NextResponse, type NextRequest } from "next/server"
 
-// Define supported languages with hyphen format
-export const supportedLanguages = ["en-us", "cs-cz"]
-export const defaultLanguage = "en-us"
+// Language configuration
+export const locales = ["en-us", "cs-cz"] as const
+export const defaultLanguage = "en-us" as const
 
-// Language names for display
-export const languageNames = {
-  "en-us": "English",
-  "cs-cz": "Čeština",
+// Check if Supabase is configured
+function isSupabaseConfigured() {
+  return !!(
+    process.env.NEXT_PUBLIC_SUPABASE_URL &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
+    process.env.NEXT_PUBLIC_SUPABASE_URL !== "your-supabase-url" &&
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "your-supabase-anon-key"
+  )
 }
 
-// Function to get the preferred language from request headers
-function getLocale(request: NextRequest) {
-  // Negotiator expects a plain object, but headers is a Headers instance
-  const negotiatorHeaders: Record<string, string> = {}
-  request.headers.forEach((value, key) => (negotiatorHeaders[key] = value))
-
-  // Use negotiator and intl-localematcher to get the best locale
-  const languages = new Negotiator({ headers: negotiatorHeaders }).languages()
-
-  // Convert browser language codes to our format (e.g., en-US -> en-us)
-  const formattedLanguages = languages.map((lang) => {
-    return lang.toLowerCase()
+export async function middleware(request: NextRequest) {
+  let response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
   })
 
-  // Try to match with our supported languages
-  try {
-    return match(formattedLanguages, supportedLanguages, defaultLanguage)
-  } catch (error) {
-    return defaultLanguage
-  }
-}
-
-export function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Check if the pathname already has a language prefix
-  const pathnameHasLanguage = supportedLanguages.some(
-    (language) => pathname.startsWith(`/${language}/`) || pathname === `/${language}`,
+  // Handle language routing first
+  const pathnameIsMissingLocale = locales.every(
+    (locale) => !pathname.startsWith(`/${locale}/`) && pathname !== `/${locale}`,
   )
 
-  if (pathnameHasLanguage) return
-
-  // Special case for dashboard path
-  if (pathname.startsWith("/dashboard")) {
+  // Redirect if there is no locale
+  if (pathnameIsMissingLocale) {
     const locale = getLocale(request)
+    return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url))
+  }
 
-    // Extract company ID if present
-    const dashboardMatch = pathname.match(/\/dashboard\/([^/]+)/)
-    const companyId = dashboardMatch ? dashboardMatch[1] : "1" // Default to company ID 1 if not specified
+  // Handle authentication only if Supabase is configured
+  if (isSupabaseConfigured()) {
+    try {
+      const supabase = createServerClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        {
+          cookies: {
+            get(name: string) {
+              const cookie = request.cookies.get(name)
+              // console.log(`[Middleware] Getting cookie ${name}: ${cookie ? "found" : "not found"}`) // Removed verbose logging
+              return cookie?.value
+            },
+            set(name: string, value: string, options: any) {
+              // console.log(`[Middleware] Setting cookie ${name}`) // Removed verbose logging
+              request.cookies.set({
+                name,
+                value,
+                ...options,
+              })
+              response = NextResponse.next({
+                request: {
+                  headers: request.headers,
+                },
+              })
+              response.cookies.set({
+                name,
+                value,
+                ...options,
+              })
+            },
+            remove(name: string, options: any) {
+              // console.log(`[Middleware] Removing cookie ${name}`) // Removed verbose logging
+              request.cookies.set({
+                name,
+                value: "",
+                ...options,
+              })
+              response = NextResponse.next({
+                request: {
+                  headers: request.headers,
+                },
+              })
+              response.cookies.set({
+                name,
+                value: "",
+                ...options,
+              })
+            },
+          },
+          // Explicitly set the cookie name prefix to ensure consistency
+          // This must match the client-side configuration in lib/supabase-client.ts
+          cookieOptions: {
+            name: "sb",
+          },
+        },
+      )
 
-    if (dashboardMatch) {
-      // If company ID is in the path, preserve the rest of the path
-      const restOfPath = pathname.substring(pathname.indexOf(companyId) + companyId.length)
-      request.nextUrl.pathname = `/${locale}/dashboard/${companyId}${restOfPath}`
-    } else {
-      // If no company ID, redirect to overview with default company ID
-      request.nextUrl.pathname = `/${locale}/dashboard/1/overview`
+      // Check if user is authenticated for protected routes
+      const isProtectedRoute = pathname.includes("/dashboard")
+      const isAuthRoute =
+        pathname.includes("/login") || pathname.includes("/signup") || pathname.includes("/reset-password")
+
+      if (isProtectedRoute) {
+        console.log(`[Middleware] Checking protected route: ${pathname}`)
+
+        try {
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser()
+
+          if (userError) {
+            console.log(`[Middleware] Error getting user for protected route: ${userError.message}`)
+          }
+
+          console.log(`[Middleware] Protected route (${pathname}): User ID - ${user ? user.id : "null"}`)
+
+          if (!user) {
+            const locale = pathname.split("/")[1]
+            console.log(`[Middleware] User not found for protected route, redirecting to /${locale}/login`)
+            return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
+          }
+        } catch (error) {
+          console.error(`[Middleware] Exception checking user for protected route:`, error)
+          const locale = pathname.split("/")[1]
+          return NextResponse.redirect(new URL(`/${locale}/login`, request.url))
+        }
+      }
+
+      if (isAuthRoute) {
+        console.log(`[Middleware] Checking auth route: ${pathname}`)
+
+        try {
+          const {
+            data: { user },
+            error: userError,
+          } = await supabase.auth.getUser()
+
+          if (userError) {
+            console.log(`[Middleware] Error getting user for auth route: ${userError.message}`)
+          }
+
+          console.log(`[Middleware] Auth route (${pathname}): User ID - ${user ? user.id : "null"}`)
+
+          if (user) {
+            const locale = pathname.split("/")[1]
+            console.log(`[Middleware] User found on auth route, redirecting to /${locale}/dashboard`)
+            return NextResponse.redirect(new URL(`/${locale}/dashboard`, request.url))
+          }
+        } catch (error) {
+          console.error(`[Middleware] Exception checking user for auth route:`, error)
+          // Continue to auth route if there's an error
+        }
+      }
+    } catch (error) {
+      console.error("[Middleware] Auth middleware caught unexpected error:", error)
+      // Continue without auth if there's an error
     }
-
-    return NextResponse.redirect(request.nextUrl)
+  } else {
+    console.log("[Middleware] Supabase not configured or public route, skipping authentication middleware")
   }
 
-  // Handle old routes and redirect to new structure
-  if (pathname === "/companies") {
-    const locale = getLocale(request)
-    request.nextUrl.pathname = `/${locale}/dashboard/1/companies`
-    return NextResponse.redirect(request.nextUrl)
+  return response
+}
+
+function getLocale(request: NextRequest): string {
+  // Check if any of the supported locales are in the pathname
+  const pathname = request.nextUrl.pathname
+  for (const locale of locales) {
+    if (pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`) {
+      return locale
+    }
   }
 
-  if (pathname === "/locations") {
-    const locale = getLocale(request)
-    request.nextUrl.pathname = `/${locale}/dashboard/1/locations`
-    return NextResponse.redirect(request.nextUrl)
+  // Get the preferred locale from the Accept-Language header
+  const acceptLanguage = request.headers.get("accept-language")
+  if (acceptLanguage) {
+    // Simple language detection - you might want to use a library for more robust detection
+    if (acceptLanguage.includes("cs")) {
+      return "cs-cz"
+    }
   }
 
-  if (pathname === "/reservations") {
-    const locale = getLocale(request)
-    request.nextUrl.pathname = `/${locale}/dashboard/1/reservations`
-    return NextResponse.redirect(request.nextUrl)
-  }
-
-  if (pathname === "/users") {
-    const locale = getLocale(request)
-    request.nextUrl.pathname = `/${locale}/dashboard/1/users`
-    return NextResponse.redirect(request.nextUrl)
-  }
-
-  if (pathname === "/reports") {
-    const locale = getLocale(request)
-    request.nextUrl.pathname = `/${locale}/dashboard/1/reports`
-    return NextResponse.redirect(request.nextUrl)
-  }
-
-  // Redirect if there is no language prefix
-  const locale = getLocale(request)
-  request.nextUrl.pathname = `/${locale}${pathname}`
-
-  return NextResponse.redirect(request.nextUrl)
+  return defaultLanguage
 }
 
 export const config = {
   matcher: [
-    // Skip all internal paths (_next)
-    "/((?!_next|api|favicon.ico).*)",
+    /*
+     * Match all request paths except for the ones starting with:
+     * - api (API routes)
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     */
+    "/((?!api|_next/static|_next/image|favicon.ico).*)",
   ],
 }
