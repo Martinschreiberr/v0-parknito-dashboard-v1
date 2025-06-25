@@ -1,5 +1,0 @@
-export * from "./users"
-export * from "./companies"
-export * from "./locations"
-export * from "./reservations"
-export * from "./spots"

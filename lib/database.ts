@@ -1,513 +1,372 @@
 import { SupabaseService } from "./supabase-service"
-import * as jsonData from "@/data"
-import type { Company, UserProfile, Location, Spot, Reservation } from "@/types"
 
-// Determine if Supabase is configured
-const isSupabaseConfigured = () => {
+// Check if Supabase is properly configured
+function isSupabaseConfigured(): boolean {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  const jwtSecret = process.env.SUPABASE_JWT_SECRET
+
   return !!(
-    process.env.NEXT_PUBLIC_SUPABASE_URL &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY &&
-    process.env.NEXT_PUBLIC_SUPABASE_URL !== "your-supabase-url" &&
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY !== "your-supabase-anon-key"
+    url &&
+    key &&
+    jwtSecret &&
+    url !== "your-supabase-url" &&
+    key !== "your-supabase-anon-key" &&
+    url.includes("supabase.co")
   )
 }
 
+// Database service that requires Supabase to be properly configured
 export class Database {
   // Companies
-  static async getCompanies(): Promise<{ companies: Company[]; source: "supabase" | "json" }> {
-    if (isSupabaseConfigured()) {
-      try {
-        const companies = await SupabaseService.getCompanies()
-        if (companies && companies.length > 0) {
-          console.log("Fetching companies from Supabase.")
-          return { companies, source: "supabase" }
-        }
-        console.warn("Supabase returned no companies, falling back to JSON data.")
-      } catch (error) {
-        console.error("Error fetching companies from Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, using JSON data for companies.")
+  static async getCompanies() {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "Supabase is not properly configured. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_JWT_SECRET environment variables."
+      )
     }
-    return { companies: jsonData.companies as Company[], source: "json" }
+
+    try {
+      console.log("[Database] Fetching companies from Supabase...")
+      const companies = await SupabaseService.getCompanies()
+      console.log(`[Database] Successfully fetched ${companies.length} companies from Supabase`)
+      return companies
+    } catch (error) {
+      console.error("[Database] Failed to fetch companies from Supabase:", error)
+      throw new Error(`Failed to fetch companies: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async getCompanyById(id: string): Promise<Company | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const company = await SupabaseService.getCompanyById(id)
-        if (company) {
-          console.log(`Fetching company ${id} from Supabase.`)
-          return company
-        }
-        console.warn(`Supabase returned no company for ID ${id}, falling back to JSON data.`)
-      } catch (error) {
-        console.error(`Error fetching company ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, using JSON data for company ${id}.`)
+  static async getCompanyById(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "Supabase is not properly configured. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_JWT_SECRET environment variables."
+      )
     }
-    return (jsonData.companies as Company[]).find((c) => c.id === id) || null
+
+    try {
+      console.log(`[Database] Fetching company ${id} from Supabase...`)
+      const company = await SupabaseService.getCompanyById(id)
+      console.log(`[Database] Successfully fetched company ${id} from Supabase`)
+      return company
+    } catch (error) {
+      console.error(`[Database] Failed to fetch company ${id} from Supabase:`, error)
+      throw new Error(`Failed to fetch company: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async createCompany(
-    companyData: Omit<Company, "id" | "created_at">,
-  ): Promise<{ company: Company | null; source: "supabase" | "json" }> {
-    if (isSupabaseConfigured()) {
-      try {
-        const newCompany = await SupabaseService.createCompany(companyData)
-        if (newCompany) {
-          console.log("Creating company in Supabase.")
-          return { company: newCompany, source: "supabase" }
-        }
-      } catch (error) {
-        console.error("Error creating company in Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, creating company in JSON data (simulated).")
+  static async createCompany(companyData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "Supabase is not properly configured. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_JWT_SECRET environment variables."
+      )
     }
-    // Simulate creation for JSON data
-    const newId = String(Math.max(...jsonData.companies.map((c) => Number(c.id))) + 1)
-    const createdCompany = { ...companyData, id: newId, created_at: new Date().toISOString() } as Company
-    jsonData.companies.push(createdCompany) // This won't persist in a real app
-    return { company: createdCompany, source: "json" }
+
+    try {
+      console.log("[Database] Creating company in Supabase...")
+      const company = await SupabaseService.createCompany(companyData)
+      console.log("[Database] Successfully created company in Supabase")
+      return company
+    } catch (error) {
+      console.error("[Database] Failed to create company in Supabase:", error)
+      throw new Error(`Failed to create company: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async updateCompany(id: string, companyData: Partial<Company>): Promise<Company | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const updatedCompany = await SupabaseService.updateCompany(id, companyData)
-        if (updatedCompany) {
-          console.log(`Updating company ${id} in Supabase.`)
-          return updatedCompany
-        }
-      } catch (error) {
-        console.error(`Error updating company ${id} in Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, updating company ${id} in JSON data (simulated).`)
+  static async updateCompany(id: string, companyData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const index = (jsonData.companies as Company[]).findIndex((c) => c.id === id)
-    if (index !== -1) {
-      jsonData.companies[index] = { ...jsonData.companies[index], ...companyData } as Company
-      return jsonData.companies[index] as Company
+
+    try {
+      return await SupabaseService.updateCompany(id, companyData)
+    } catch (error) {
+      console.error("[Database] Failed to update company in Supabase:", error)
+      throw new Error(`Failed to update company: ${error instanceof Error ? error.message : String(error)}`)
     }
-    return null
   }
 
-  static async deleteCompany(id: string): Promise<boolean> {
-    if (isSupabaseConfigured()) {
-      try {
-        const success = await SupabaseService.deleteCompany(id)
-        if (success) {
-          console.log(`Deleting company ${id} from Supabase.`)
-          return true
-        }
-      } catch (error) {
-        console.error(`Error deleting company ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, deleting company ${id} from JSON data (simulated).`)
+  static async deleteCompany(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const initialLength = (jsonData.companies as Company[]).length
-    jsonData.companies = (jsonData.companies as Company[]).filter((c) => c.id !== id)
-    return (jsonData.companies as Company[]).length < initialLength
+
+    try {
+      return await SupabaseService.deleteCompany(id)
+    } catch (error) {
+      console.error("[Database] Failed to delete company in Supabase:", error)
+      throw new Error(`Failed to delete company: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
   // Users
-  static async getUsers(companyId?: string): Promise<UserProfile[]> {
-    if (isSupabaseConfigured()) {
-      try {
-        const users = await SupabaseService.getUsers(companyId)
-        if (users && users.length > 0) {
-          console.log("Fetching users from Supabase.")
-          return users
-        }
-        console.warn("Supabase returned no users, falling back to JSON data.")
-      } catch (error) {
-        console.error("Error fetching users from Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, using JSON data for users.")
+  static async getUsers(companyId?: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "Supabase is not properly configured. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_JWT_SECRET environment variables."
+      )
     }
-    return (jsonData.users as UserProfile[]).filter((user) => !companyId || user.company_id === companyId)
+
+    try {
+      console.log("[Database] Fetching users from Supabase...")
+      const users = await SupabaseService.getUsers(companyId)
+      console.log(`[Database] Successfully fetched ${users.length} users from Supabase`)
+      return users
+    } catch (error) {
+      console.error("[Database] Failed to fetch users from Supabase:", error)
+      throw new Error(`Failed to fetch users: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async getUserById(id: string): Promise<UserProfile | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const user = await SupabaseService.getUserProfile(id)
-        if (user) {
-          console.log(`Fetching user ${id} from Supabase.`)
-          return user
-        }
-        console.warn(`Supabase returned no user for ID ${id}, falling back to JSON data.`)
-      } catch (error) {
-        console.error(`Error fetching user ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, using JSON data for user ${id}.`)
+  static async getUserProfile(userId: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    return (jsonData.users as UserProfile[]).find((u) => u.id === id) || null
+
+    try {
+      return await SupabaseService.getUserProfile(userId)
+    } catch (error) {
+      console.error(`[Database] Failed to fetch user ${userId} from Supabase:`, error)
+      throw new Error(`Failed to fetch user: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async createUser(userData: Omit<UserProfile, "id" | "created_at">): Promise<UserProfile | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const newUser = await SupabaseService.createUser(userData)
-        if (newUser) {
-          console.log("Creating user in Supabase.")
-          return newUser
-        }
-      } catch (error) {
-        console.error("Error creating user in Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, creating user in JSON data (simulated).")
+  static async createUser(userData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const newId = String(Math.max(...jsonData.users.map((u) => Number(u.id))) + 1)
-    const createdUser = { ...userData, id: newId, created_at: new Date().toISOString() } as UserProfile
-    jsonData.users.push(createdUser)
-    return createdUser
+
+    try {
+      return await SupabaseService.createUser(userData)
+    } catch (error) {
+      console.error("[Database] Failed to create user in Supabase:", error)
+      throw new Error(`Failed to create user: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async updateUser(id: string, userData: Partial<UserProfile>): Promise<UserProfile | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const updatedUser = await SupabaseService.updateUserProfile(id, userData)
-        if (updatedUser) {
-          console.log(`Updating user ${id} in Supabase.`)
-          return updatedUser
-        }
-      } catch (error) {
-        console.error(`Error updating user ${id} in Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, updating user ${id} in JSON data (simulated).`)
+  static async updateUserProfile(userId: string, profileData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const index = (jsonData.users as UserProfile[]).findIndex((u) => u.id === id)
-    if (index !== -1) {
-      jsonData.users[index] = { ...jsonData.users[index], ...userData } as UserProfile
-      return jsonData.users[index] as UserProfile
+
+    try {
+      return await SupabaseService.updateUserProfile(userId, profileData)
+    } catch (error) {
+      console.error("[Database] Failed to update user in Supabase:", error)
+      throw new Error(`Failed to update user: ${error instanceof Error ? error.message : String(error)}`)
     }
-    return null
   }
 
-  static async deleteUser(id: string): Promise<boolean> {
-    if (isSupabaseConfigured()) {
-      try {
-        const success = await SupabaseService.deleteUser(id)
-        if (success) {
-          console.log(`Deleting user ${id} from Supabase.`)
-          return true
-        }
-      } catch (error) {
-        console.error(`Error deleting user ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, deleting user ${id} from JSON data (simulated).`)
+  static async deleteUser(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const initialLength = (jsonData.users as UserProfile[]).length
-    jsonData.users = (jsonData.users as UserProfile[]).filter((u) => u.id !== id)
-    return (jsonData.users as UserProfile[]).length < initialLength
+
+    try {
+      return await SupabaseService.deleteUser(id)
+    } catch (error) {
+      console.error("[Database] Failed to delete user in Supabase:", error)
+      throw new Error(`Failed to delete user: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
   // Locations
-  static async getLocations(companyId?: string): Promise<Location[]> {
-    if (isSupabaseConfigured()) {
-      try {
-        const locations = await SupabaseService.getLocations(companyId)
-        if (locations && locations.length > 0) {
-          console.log("Fetching locations from Supabase.")
-          return locations
-        }
-        console.warn("Supabase returned no locations, falling back to JSON data.")
-      } catch (error) {
-        console.error("Error fetching locations from Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, using JSON data for locations.")
+  static async getLocations(companyId?: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "Supabase is not properly configured. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_JWT_SECRET environment variables."
+      )
     }
-    return (jsonData.locations as Location[]).filter((loc) => !companyId || loc.company_id === companyId)
+
+    try {
+      console.log("[Database] Fetching locations from Supabase...")
+      const locations = await SupabaseService.getLocations(companyId)
+      console.log(`[Database] Successfully fetched ${locations.length} locations from Supabase`)
+      return locations
+    } catch (error) {
+      console.error("[Database] Failed to fetch locations from Supabase:", error)
+      throw new Error(`Failed to fetch locations: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async getLocationById(id: string): Promise<Location | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const location = await SupabaseService.getLocationById(id)
-        if (location) {
-          console.log(`Fetching location ${id} from Supabase.`)
-          return location
-        }
-        console.warn(`Supabase returned no location for ID ${id}, falling back to JSON data.`)
-      } catch (error) {
-        console.error(`Error fetching location ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, using JSON data for location ${id}.`)
+  static async getLocationById(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    return (jsonData.locations as Location[]).find((l) => l.id === id) || null
+
+    try {
+      return await SupabaseService.getLocationById(id)
+    } catch (error) {
+      console.error(`[Database] Failed to fetch location ${id} from Supabase:`, error)
+      throw new Error(`Failed to fetch location: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async createLocation(locationData: Omit<Location, "id" | "created_at">): Promise<Location | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const newLocation = await SupabaseService.createLocation(locationData)
-        if (newLocation) {
-          console.log("Creating location in Supabase.")
-          return newLocation
-        }
-      } catch (error) {
-        console.error("Error creating location in Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, creating location in JSON data (simulated).")
+  static async createLocation(locationData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const newId = String(Math.max(...jsonData.locations.map((l) => Number(l.id))) + 1)
-    const createdLocation = { ...locationData, id: newId, created_at: new Date().toISOString() } as Location
-    jsonData.locations.push(createdLocation)
-    return createdLocation
+
+    try {
+      return await SupabaseService.createLocation(locationData)
+    } catch (error) {
+      console.error("[Database] Failed to create location in Supabase:", error)
+      throw new Error(`Failed to create location: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async updateLocation(id: string, locationData: Partial<Location>): Promise<Location | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const updatedLocation = await SupabaseService.updateLocation(id, locationData)
-        if (updatedLocation) {
-          console.log(`Updating location ${id} in Supabase.`)
-          return updatedLocation
-        }
-      } catch (error) {
-        console.error(`Error updating location ${id} in Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, updating location ${id} in JSON data (simulated).`)
+  static async updateLocation(id: string, locationData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const index = (jsonData.locations as Location[]).findIndex((l) => l.id === id)
-    if (index !== -1) {
-      jsonData.locations[index] = { ...jsonData.locations[index], ...locationData } as Location
-      return jsonData.locations[index] as Location
+
+    try {
+      return await SupabaseService.updateLocation(id, locationData)
+    } catch (error) {
+      console.error("[Database] Failed to update location in Supabase:", error)
+      throw new Error(`Failed to update location: ${error instanceof Error ? error.message : String(error)}`)
     }
-    return null
   }
 
-  static async deleteLocation(id: string): Promise<boolean> {
-    if (isSupabaseConfigured()) {
-      try {
-        const success = await SupabaseService.deleteLocation(id)
-        if (success) {
-          console.log(`Deleting location ${id} from Supabase.`)
-          return true
-        }
-      } catch (error) {
-        console.error(`Error deleting location ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, deleting location ${id} from JSON data (simulated).`)
+  static async deleteLocation(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const initialLength = (jsonData.locations as Location[]).length
-    jsonData.locations = (jsonData.locations as Location[]).filter((l) => l.id !== id)
-    return (jsonData.locations as Location[]).length < initialLength
+
+    try {
+      return await SupabaseService.deleteLocation(id)
+    } catch (error) {
+      console.error("[Database] Failed to delete location in Supabase:", error)
+      throw new Error(`Failed to delete location: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
   // Spots
-  static async getSpots(locationId?: string): Promise<Spot[]> {
-    if (isSupabaseConfigured()) {
-      try {
-        const spots = await SupabaseService.getSpots(locationId)
-        if (spots && spots.length > 0) {
-          console.log("Fetching spots from Supabase.")
-          return spots
-        }
-        console.warn("Supabase returned no spots, falling back to JSON data.")
-      } catch (error) {
-        console.error("Error fetching spots from Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, using JSON data for spots.")
+  static async getSpots(locationId?: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "Supabase is not properly configured. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_JWT_SECRET environment variables."
+      )
     }
-    return (jsonData.spots as Spot[]).filter((spot) => !locationId || spot.location_id === locationId)
+
+    try {
+      console.log("[Database] Fetching spots from Supabase...")
+      const spots = await SupabaseService.getSpots(locationId)
+      console.log(`[Database] Successfully fetched ${spots.length} spots from Supabase`)
+      return spots
+    } catch (error) {
+      console.error("[Database] Failed to fetch spots from Supabase:", error)
+      throw new Error(`Failed to fetch spots: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async getSpotById(id: string): Promise<Spot | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const spot = await SupabaseService.getSpotById(id)
-        if (spot) {
-          console.log(`Fetching spot ${id} from Supabase.`)
-          return spot
-        }
-        console.warn(`Supabase returned no spot for ID ${id}, falling back to JSON data.`)
-      } catch (error) {
-        console.error(`Error fetching spot ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, using JSON data for spot ${id}.`)
+  static async createSpot(spotData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    return (jsonData.spots as Spot[]).find((s) => s.id === id) || null
+
+    try {
+      return await SupabaseService.createSpot(spotData)
+    } catch (error) {
+      console.error("[Database] Failed to create spot in Supabase:", error)
+      throw new Error(`Failed to create spot: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async createSpot(spotData: Omit<Spot, "id">): Promise<Spot | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const newSpot = await SupabaseService.createSpot(spotData)
-        if (newSpot) {
-          console.log("Creating spot in Supabase.")
-          return newSpot
-        }
-      } catch (error) {
-        console.error("Error creating spot in Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, creating spot in JSON data (simulated).")
+  static async updateSpot(id: string, spotData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const newId = String(Math.max(...jsonData.spots.map((s) => Number(s.id))) + 1)
-    const createdSpot = { ...spotData, id: newId } as Spot
-    jsonData.spots.push(createdSpot)
-    return createdSpot
+
+    try {
+      return await SupabaseService.updateSpot(id, spotData)
+    } catch (error) {
+      console.error("[Database] Failed to update spot in Supabase:", error)
+      throw new Error(`Failed to update spot: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async updateSpot(id: string, spotData: Partial<Spot>): Promise<Spot | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const updatedSpot = await SupabaseService.updateSpot(id, spotData)
-        if (updatedSpot) {
-          console.log(`Updating spot ${id} in Supabase.`)
-          return updatedSpot
-        }
-      } catch (error) {
-        console.error(`Error updating spot ${id} in Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, updating spot ${id} in JSON data (simulated).`)
+  static async deleteSpot(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const index = (jsonData.spots as Spot[]).findIndex((s) => s.id === id)
-    if (index !== -1) {
-      jsonData.spots[index] = { ...jsonData.spots[index], ...spotData } as Spot
-      return jsonData.spots[index] as Spot
-    }
-    return null
-  }
 
-  static async deleteSpot(id: string): Promise<boolean> {
-    if (isSupabaseConfigured()) {
-      try {
-        const success = await SupabaseService.deleteSpot(id)
-        if (success) {
-          console.log(`Deleting spot ${id} from Supabase.`)
-          return true
-        }
-      } catch (error) {
-        console.error(`Error deleting spot ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, deleting spot ${id} from JSON data (simulated).`)
+    try {
+      return await SupabaseService.deleteSpot(id)
+    } catch (error) {
+      console.error("[Database] Failed to delete spot in Supabase:", error)
+      throw new Error(`Failed to delete spot: ${error instanceof Error ? error.message : String(error)}`)
     }
-    const initialLength = (jsonData.spots as Spot[]).length
-    jsonData.spots = (jsonData.spots as Spot[]).filter((s) => s.id !== id)
-    return (jsonData.spots as Spot[]).length < initialLength
   }
 
   // Reservations
-  static async getReservations(userId?: string, locationId?: string): Promise<Reservation[]> {
-    if (isSupabaseConfigured()) {
-      try {
-        const reservations = await SupabaseService.getReservations(userId, locationId)
-        if (reservations && reservations.length > 0) {
-          console.log("Fetching reservations from Supabase.")
-          return reservations
-        }
-        console.warn("Supabase returned no reservations, falling back to JSON data.")
-      } catch (error) {
-        console.error("Error fetching reservations from Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, using JSON data for reservations.")
+  static async getReservations(userId?: string, locationId?: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error(
+        "Supabase is not properly configured. Please set NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and SUPABASE_JWT_SECRET environment variables."
+      )
     }
-    return (jsonData.reservations as Reservation[]).filter(
-      (res) => (!userId || res.user_id === userId) && (!locationId || res.location_id === locationId),
-    )
+
+    try {
+      console.log("[Database] Fetching reservations from Supabase...")
+      const reservations = await SupabaseService.getReservations(userId, locationId)
+      console.log(`[Database] Successfully fetched ${reservations.length} reservations from Supabase`)
+      return reservations
+    } catch (error) {
+      console.error("[Database] Failed to fetch reservations from Supabase:", error)
+      throw new Error(`Failed to fetch reservations: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async getReservationById(id: string): Promise<Reservation | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const reservation = await SupabaseService.getReservationById(id)
-        if (reservation) {
-          console.log(`Fetching reservation ${id} from Supabase.`)
-          return reservation
-        }
-        console.warn(`Supabase returned no reservation for ID ${id}, falling back to JSON data.`)
-      } catch (error) {
-        console.error(`Error fetching reservation ${id} from Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, using JSON data for reservation ${id}.`)
+  static async getReservationById(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    return (jsonData.reservations as Reservation[]).find((r) => r.id === id) || null
+
+    try {
+      return await SupabaseService.getReservationById(id)
+    } catch (error) {
+      console.error(`[Database] Failed to fetch reservation ${id} from Supabase:`, error)
+      throw new Error(`Failed to fetch reservation: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async createReservation(reservationData: Omit<Reservation, "id" | "created_at">): Promise<Reservation | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const newReservation = await SupabaseService.createReservation(reservationData)
-        if (newReservation) {
-          console.log("Creating reservation in Supabase.")
-          return newReservation
-        }
-      } catch (error) {
-        console.error("Error creating reservation in Supabase, falling back to JSON data:", error)
-      }
-    } else {
-      console.log("Supabase not configured, creating reservation in JSON data (simulated).")
+  static async createReservation(reservationData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const newId = String(Math.max(...jsonData.reservations.map((r) => Number(r.id))) + 1)
-    const createdReservation = { ...reservationData, id: newId, created_at: new Date().toISOString() } as Reservation
-    jsonData.reservations.push(createdReservation)
-    return createdReservation
+
+    try {
+      return await SupabaseService.createReservation(reservationData)
+    } catch (error) {
+      console.error("[Database] Failed to create reservation in Supabase:", error)
+      throw new Error(`Failed to create reservation: ${error instanceof Error ? error.message : String(error)}`)
+    }
   }
 
-  static async updateReservation(id: string, reservationData: Partial<Reservation>): Promise<Reservation | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const updatedReservation = await SupabaseService.updateReservation(id, reservationData)
-        if (updatedReservation) {
-          console.log(`Updating reservation ${id} in Supabase.`)
-          return updatedReservation
-        }
-      } catch (error) {
-        console.error(`Error updating reservation ${id} in Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, updating reservation ${id} in JSON data (simulated).`)
+  static async updateReservation(id: string, reservationData: any) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const index = (jsonData.reservations as Reservation[]).findIndex((r) => r.id === id)
-    if (index !== -1) {
-      jsonData.reservations[index] = { ...jsonData.reservations[index], ...reservationData } as Reservation
-      return jsonData.reservations[index] as Reservation
+
+    try {
+      return await SupabaseService.updateReservation(id, reservationData)
+    } catch (error) {
+      console.error("[Database] Failed to update reservation in Supabase:", error)
+      throw new Error(`Failed to update reservation: ${error instanceof Error ? error.message : String(error)}`)
     }
-    return null
   }
 
-  static async cancelReservation(id: string): Promise<Reservation | null> {
-    if (isSupabaseConfigured()) {
-      try {
-        const cancelledReservation = await SupabaseService.cancelReservation(id)
-        if (cancelledReservation) {
-          console.log(`Cancelling reservation ${id} in Supabase.`)
-          return cancelledReservation
-        }
-      } catch (error) {
-        console.error(`Error cancelling reservation ${id} in Supabase, falling back to JSON data:`, error)
-      }
-    } else {
-      console.log(`Supabase not configured, cancelling reservation ${id} in JSON data (simulated).`)
+  static async cancelReservation(id: string) {
+    if (!isSupabaseConfigured()) {
+      throw new Error("Supabase is not properly configured.")
     }
-    const index = (jsonData.reservations as Reservation[]).findIndex((r) => r.id === id)
-    if (index !== -1) {
-      jsonData.reservations[index] = { ...jsonData.reservations[index], status: "cancelled" } as Reservation
-      return jsonData.reservations[index] as Reservation
+
+    try {
+      return await SupabaseService.cancelReservation(id)
+    } catch (error) {
+      console.error("[Database] Failed to cancel reservation in Supabase:", error)
+      throw new Error(`Failed to cancel reservation: ${error instanceof Error ? error.message : String(error)}`)
     }
-    return null
   }
 }
