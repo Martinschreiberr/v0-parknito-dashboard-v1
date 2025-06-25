@@ -11,7 +11,7 @@ export function createServerSupabaseClient() {
     console.error(
       "Supabase environment variables NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are not set. Please ensure they are configured in your Vercel project.",
     )
-    throw new Error("Supabase environment variables missing.")
+    throw new Error("Supabase environment variables missing in lib/supabase.ts.")
   }
 
   console.log(

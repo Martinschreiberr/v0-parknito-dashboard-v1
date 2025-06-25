@@ -86,3 +86,17 @@ CREATE INDEX IF NOT EXISTS idx_reservations_spot_id ON reservations(spot_id);
 CREATE INDEX IF NOT EXISTS idx_reservations_user_status ON reservations(user_id, status);
 CREATE INDEX IF NOT EXISTS idx_reservations_location_status ON reservations(location_id, status);
 CREATE INDEX IF NOT EXISTS idx_spots_location_status ON spots(location_id, status);
+
+-- This script executes all SQL migration files in the supabase/migrations directory.
+-- It ensures your database schema is up-to-date with the application's requirements.
+
+-- Example of how you might run individual migration files:
+\i supabase/migrations/001_initial_schema.sql
+\i supabase/migrations/002_functions_and_triggers.sql
+\i supabase/migrations/003_row_level_security.sql
+\i supabase/migrations/004_seed_data.sql
+\i supabase/migrations/005_utility_functions.sql
+\i supabase/migrations/006_sample_reservations.sql
+
+-- Note: The actual execution environment will handle running these files sequentially.
+-- This file serves as a reference for the order and content of migrations.
